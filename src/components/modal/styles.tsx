@@ -1,24 +1,35 @@
-import ReactModal from 'react-modal';
+import { BBBModal } from '@bigbluebutton/bbb-ui-components-react';
+import { colors } from '@bigbluebutton/bbb-ui-components-react/colors';
 import styled, { css, keyframes } from 'styled-components';
 
 const s = (val: number, unit = 'rem') => `calc(${val}${unit} * var(--pru-sm, 1))`;
 
-const PluginModal = styled(ReactModal)<{ $modalUiScale?: number }>`
+/**
+ * BBBModal hardcodes inline styles that beat any CSS class, hence the
+ * `!important`s. `zoom` (not `calc(... * var(--pru-sm))`) scales modalUiScale
+ * into the library components too, since they don't read `--pru-sm`; `width`
+ * stays a plain rem value below so zoom doesn't scale it twice.
+ *
+ * `zoom` resolves `vw`/`vh` against the real (unzoomed) viewport and then
+ * multiplies the rendered box by the zoom factor, so a plain `95vw`/`90vh`
+ * cap stops clamping past scale 1 (the multiplication happens after the
+ * cap is checked). Dividing by `--pru-sm` here pre-compensates so the
+ * rendered, zoomed-out size still tops out at 95vw/90vh of the real viewport.
+ */
+const PluginModal = styled(BBBModal)<{ $modalUiScale?: number; $hideCloseButton?: boolean }>`
   --pru-sm: ${({ $modalUiScale }) => $modalUiScale ?? 1};
+  zoom: var(--pru-sm, 1);
   position: relative;
   z-index: 1000 !important;
   outline: transparent;
   outline-width: 2px;
   outline-style: solid;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff !important;
-  width: ${s(32)};
-  max-width: 95vw;
-  max-height: 90vh;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  background-color: ${colors.background.white} !important;
+  width: 32rem !important;
+  max-width: calc(95vw / var(--pru-sm, 1)) !important;
+  max-height: calc(90vh / var(--pru-sm, 1)) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 0.5rem 2rem ${colors.shadow.default};
   font-family: 'Source Sans Pro', Arial, sans-serif;
 
   &::-webkit-scrollbar {
@@ -45,40 +56,15 @@ const PluginModal = styled(ReactModal)<{ $modalUiScale?: number }>`
   &::-webkit-scrollbar-corner {
     background: transparent;
   }
-`;
 
-const ModalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: ${s(1.25)} ${s(1.5)} ${s(1.125)};
-  border-bottom: 1px solid #E8EDF2;
-  flex-shrink: 0;
-`;
-
-const ModalTitle = styled.span`
-  font-weight: 600;
-  font-size: ${s(1.55)};
-  color: #1C2B3A;
-`;
-
-const CloseButton = styled.button`
-  font-size: ${s(1.3)};
-  background: none;
-  color: #8B9AAF;
-  border: none;
-  cursor: pointer;
-  padding: ${s(0.375)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.25rem;
-  line-height: 1;
-
-  &:hover {
-    background-color: #EEF2F8;
-    color: #1C2B3A;
-  }
+  /* BBBModal always renders its close button, with no prop to suppress it - yet to come.
+    Bots cannot dismiss the modal themselves — it auto-closes on the progress bar's
+     timer — so the control is hidden for them rather than left on screen dead. */
+  ${({ $hideCloseButton }) => $hideCloseButton && css`
+    & [data-test$='-close-button'] {
+      display: none;
+    }
+  `}
 `;
 
 const toastSlideIn = keyframes`
@@ -107,45 +93,42 @@ const FloatingToast = styled.div<{ $exiting: boolean }>`
   white-space: nowrap;
   padding: ${s(12, 'px')} ${s(20, 'px')};
   border-radius: 10px;
-  background-color: #fff;
-  border: 0.5px solid #E8EDF2;
+  background-color: ${colors.background.white};
+  border: 0.5px solid ${colors.border.default};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   gap: ${s(10, 'px')};
   font-family: 'Source Sans Pro', Arial, sans-serif;
   font-size: ${s(17, 'px')};
-  color: #6c757d;
+  color: ${colors.text.light};
   pointer-events: none;
   ${({ $exiting }) => css`
     animation: ${$exiting ? toastSlideOut : toastSlideIn} 0.35s ease forwards;
   `}
 `;
 
-/* Auto-close progress bar shown to bot users, which cannot dismiss the modal
-   themselves. Kept from the v0.1.x branch (BigBlueButton 4.0 only). */
+/* Countdown bar pinned to the modal's bottom edge, shown only for bots —
+   which can't dismiss the modal themselves — as their auto-close timer. */
 const ProgressBarContainer = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 4px;
-  background-color: #E8EDF2;
+  background-color: ${colors.neutral.neutral4};
   overflow: hidden;
 `;
 
 const ProgressBarFill = styled.div<{ $progress: number }>`
   height: 100%;
-  background-color: #4A6CF7;
+  background-color: ${colors.brand.brand1};
   width: ${({ $progress }) => `${$progress}%`};
   transition: width 0.03s linear;
 `;
 
 export {
   PluginModal,
-  ModalHeader,
-  ModalTitle,
-  CloseButton,
   ModalWithToastWrapper,
   FloatingToast,
   ProgressBarContainer,
