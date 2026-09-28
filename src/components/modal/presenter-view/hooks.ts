@@ -10,6 +10,7 @@ import {
 } from '../types';
 import { PickedUser, PickedUserSeenEntryDataChannel } from '../../pick-random-user/types';
 import { filterPossibleUsersToBePicked } from './utils';
+import { sampleReelNames } from '../picked-user-reel/utils';
 
 export function useGetPickRandomUserFunction(
   pluginApi: PluginApi,
@@ -35,7 +36,10 @@ export function useGetPickRandomUserFunction(
       deletePickedUserSeenEntries([RESET_DATA_CHANNEL]);
       const randomIndex = Math.floor(Math.random() * possibleUsersToBePicked.length);
       const randomlyPickedUser = possibleUsersToBePicked[randomIndex];
-      pushPickedUser(randomlyPickedUser);
+      pushPickedUser({
+        ...randomlyPickedUser,
+        reelNames: sampleReelNames(possibleUsersToBePicked, randomlyPickedUser),
+      });
     }
   };
 

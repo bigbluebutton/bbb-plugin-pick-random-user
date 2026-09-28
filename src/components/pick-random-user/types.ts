@@ -6,6 +6,9 @@ export interface PickedUser {
     avatar: string;
     color: string;
     bot: boolean;
+    // Names the modal's reel spins through before stopping on this user. Missing on picks
+    // published before the reel existed.
+    reelNames?: string[];
 }
 
 export interface PickedUserWithEntryId {

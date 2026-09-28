@@ -34,9 +34,9 @@ const intlMessages = defineMessages({
     defaultMessage: 'You have been randomly picked',
   },
   modalTitle: {
-    id: 'pickRandomUserPlugin.modal.title',
-    description: 'Title of the pick random user modal',
-    defaultMessage: 'Pick random user',
+    id: 'pickRandomUserPlugin.modal.pickedUserView.title.participantPicked',
+    description: 'Title of the picked-user modal',
+    defaultMessage: 'Participant picked!',
   },
   closeButtonAriaLabel: {
     id: 'pickRandomUserPlugin.modal.closeButton.ariaLabel',
@@ -97,6 +97,7 @@ export function PickUserModal(props: PickUserModalProps) {
     pushPickedUserSeen,
     isBot,
     uuid,
+    pluginApi,
   } = props;
 
   const modalAnchor = useRef(document.getElementById(uuid));
@@ -273,15 +274,14 @@ export function PickUserModal(props: PickUserModalProps) {
     >
       <PickedUserViewComponent
         {...{
+          pluginApi,
           pickedUserSeenEntries,
           pushPickedUserSeen,
           pickedUserWithEntryId: currentPickedUser,
           intl,
           currentUser,
-          handleBack: handleCloseModal,
-          showBackButton: !isBot,
-          remainingSeconds,
-          canClose,
+          handleClose: handleCloseModal,
+          isBot,
         }}
       />
       {isBot && (

@@ -77,6 +77,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
       <PickUserModal
         {...{
           uuid,
+          pluginApi,
           pickRandomUserSettings,
           intl,
           showModal,

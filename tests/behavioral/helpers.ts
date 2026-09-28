@@ -59,18 +59,18 @@ export async function openPickRandomUserPanel(modPage: Page): Promise<void> {
 }
 
 /**
- * Dismiss the picked-user modal via its "back" button.
+ * Dismiss the picked-user modal via its "Close" footer button.
  *
- * On v0.0.x "back" returns to the presenter view inside the modal. Here the presenter view
- * is the panel behind the modal, so "back" just closes the modal and the panel is revealed
- * again — unchanged, since it was never unmounted.
+ * On v0.0.x the modal had a "back" button that returned to the presenter view inside it.
+ * Here the presenter view is the panel behind the modal, so closing the modal reveals the
+ * panel again — unchanged, since it was never unmounted.
  */
 export async function closePickedUserModal(modPage: Page): Promise<void> {
-  await modPage.hasElement(e.pickRandomUserBackButton, 'back button should be visible');
-  await modPage.page.click(e.pickRandomUserBackButton);
+  await modPage.hasElement(e.pickRandomUserCloseButton, 'close button should be visible');
+  await modPage.page.click(e.pickRandomUserCloseButton);
   await modPage.wasRemoved(
     e.pickRandomUserPickedUserViewTitle,
-    'picked-user modal should close after clicking back',
+    'picked-user modal should close after clicking close',
     ELEMENT_WAIT_TIME,
   );
   await modPage.hasElement(

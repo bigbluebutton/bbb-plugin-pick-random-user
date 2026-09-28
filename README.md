@@ -61,7 +61,7 @@ The multiplier applies to: font sizes, padding, margins, gaps, and list max-heig
 
 ### Prevent Close Delay
 
-By default, when the modal appears showing the picked user (the view that displays the selected user's name and avatar), it cannot be closed for 3 seconds. This prevents accidental closures from misclicks. During this time:
+By default, when the modal appears showing the picked user (the view where a reel of names spins and stops on the selected user), it cannot be closed for 3 seconds. This prevents accidental closures from misclicks. During this time:
 - The close button (X) is disabled and grayed out
 - Clicking outside the modal does nothing
 - Pressing the Escape key does nothing
