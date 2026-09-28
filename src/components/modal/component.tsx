@@ -7,7 +7,8 @@ import { colors } from '@bigbluebutton/bbb-ui-components-react/colors';
 import * as Styled from './styles';
 import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
-import { useHandleCurrentUserNotification, usePreventCloseModalCountdown } from './hooks';
+import { usePreventCloseModalCountdown } from './hooks';
+import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
 import { MIN_PREVENT_CLOSE_DELAY_FOR_TOAST_SECONDS } from '../../commons/constants';
 
 // Time a bot user is given to look at the picked user before the modal closes itself.
@@ -133,16 +134,27 @@ export function PickUserModal(props: PickUserModalProps) {
   }, [showModal, closeButtonAriaLabel]);
 
   const [botProgress, setBotProgress] = useState(0);
+  const [reelSpinning, setReelSpinning] = useState(false);
 
-  useHandleCurrentUserNotification(
-    currentUser,
-    pickedUserSeenEntries,
-    currentPickedUser,
-    pickRandomUserSettings,
-    intl.formatMessage(intlMessages.currentUserPicked),
-  );
+  const {
+    preventCloseDelaySeconds,
+    pingSoundEnabled,
+    pingSoundUrl,
+    browserNotificationEnabled,
+  } = pickRandomUserSettings;
 
-  const { preventCloseDelaySeconds } = pickRandomUserSettings;
+  // The picked user is told only once the reel stops on their name, so the ping sound and
+  // the browser notification do not give the result away while it spins. The reel stops
+  // on time in a background tab too (see useReelSpin), so a user elsewhere still gets them.
+  const handleReelLanded = () => {
+    const isCurrentUserPicked = !!currentUser?.userId
+      && currentPickedUser?.pickedUser?.userId === currentUser.userId;
+    if (isBot || !isCurrentUserPicked) return;
+    if (pingSoundEnabled) pingSoundForRandomlyPickedUser(pingSoundUrl);
+    if (browserNotificationEnabled) {
+      notifyRandomlyPickedUser(intl.formatMessage(intlMessages.currentUserPicked));
+    }
+  };
 
   const { remainingSeconds, canClose } = usePreventCloseModalCountdown(
     currentUser,
@@ -250,8 +262,11 @@ export function PickUserModal(props: PickUserModalProps) {
   // routes those two through `onRequestClose` only while their respective
   // `shouldCloseOn*` prop is true, so while the countdown runs this handler is
   // reached by BBBModal's close button alone, and closing there is intended.
+  // The spin is the exception: nothing closes the modal until the reel stops, or the
+  // picked user could dismiss it before the result is in and never be told, since the
+  // ping and the notification wait for the reel to stop.
   const handleRequestClose = () => {
-    if (isBot) return;
+    if (isBot || reelSpinning) return;
     handleCloseModal();
   };
 
@@ -263,11 +278,12 @@ export function PickUserModal(props: PickUserModalProps) {
       parentSelector={getModalParent}
       isOpen={showModal}
       onRequestClose={handleRequestClose}
-      shouldCloseOnOverlayClick={canClose && !isBot}
-      shouldCloseOnEsc={canClose && !isBot}
+      shouldCloseOnOverlayClick={canClose && !isBot && !reelSpinning}
+      shouldCloseOnEsc={canClose && !isBot && !reelSpinning}
       overlayElement={renderOverlay}
       $modalUiScale={pickRandomUserSettings.modalUiScale}
       $hideCloseButton={isBot}
+      $lockCloseButton={reelSpinning}
       title={intl.formatMessage(intlMessages.modalTitle)}
       testId={MODAL_TEST_ID}
       noFooter
@@ -282,6 +298,9 @@ export function PickUserModal(props: PickUserModalProps) {
           currentUser,
           handleClose: handleCloseModal,
           isBot,
+          reelSpinning,
+          onReelSpinningChange: setReelSpinning,
+          onReelLanded: handleReelLanded,
         }}
       />
       {isBot && (

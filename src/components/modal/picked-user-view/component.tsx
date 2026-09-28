@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { defineMessages } from 'react-intl';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import { PickedUserViewComponentProps } from './types';
@@ -25,11 +25,12 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
     currentUser,
     handleClose,
     isBot,
+    reelSpinning,
+    onReelSpinningChange,
     pickedUserSeenEntries,
     pushPickedUserSeen,
+    onReelLanded,
   } = props;
-
-  const [spinning, setSpinning] = useState(false);
 
   useEffect(() => {
     const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
@@ -58,7 +59,8 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
             names={reel.names}
             targetIndex={reel.targetIndex}
             spinKey={pickedUserWithEntryId.entryId}
-            onSpinningChange={setSpinning}
+            onSpinningChange={onReelSpinningChange}
+            onLanded={onReelLanded}
           />
         )}
       </Styled.PickedUserViewBody>
@@ -69,10 +71,11 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
             color="default"
             dataTest="pickRandomUserCloseButton"
             label={intl.formatMessage(intlMessages.closeButtonLabel)}
+            disabled={reelSpinning}
             onClick={handleClose}
           />
           {currentUser?.presenter && (
-            <PickAgainButton {...{ pluginApi, intl, disabled: spinning }} />
+            <PickAgainButton {...{ pluginApi, intl, disabled: reelSpinning }} />
           )}
         </Styled.PickedUserViewFooter>
       )}

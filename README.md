@@ -69,6 +69,8 @@ By default, when the modal appears showing the picked user (the view where a ree
   - **For viewers**: A text message below the user's name: "You can close this modal in X seconds"
   - **For presenters**: A blue progress bar (similar to YouTube's) that shrinks as time passes
 
+Independently of this delay, the modal cannot be closed at all while the reel spins: its close button (X), the Close button, a click outside and the Escape key only work once the reel stops. Otherwise the picked user could close it before the result is in, and miss the ping sound and the notification, which wait for the reel to stop.
+
 **Note:** This delay only applies to the picked user modal. On BigBlueButton 4.0 the presenter view (used for selecting users) lives in the plugin's sidekick panel, opened from the apps gallery, and is not affected by this delay.
 
 After the countdown finishes, all close methods become available. To change this delay, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
@@ -84,7 +86,7 @@ public:
 
 ### Notification
 
-By default, browser notification when user is randomly picked is not enabled. To enable it, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
+By default, browser notification when user is randomly picked is not enabled. When enabled, it is shown to the picked user once the reel stops on their name, so it does not give the result away while the reel spins. To enable it, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
 
 ```yaml
 public:
@@ -97,7 +99,7 @@ public:
 
 ### Ping sound
 
-By default, ping sound is played for the randomly picked user. To remove this feature, one must add the following configurations in their `/etc/bigbluebutton/bbb-html5.yml` file.
+By default, ping sound is played for the randomly picked user, once the reel stops on their name. To remove this feature, one must add the following configurations in their `/etc/bigbluebutton/bbb-html5.yml` file.
 
 So within that file and in `public.plugins` add the following configurations:
 

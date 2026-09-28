@@ -16,7 +16,11 @@ const s = (val: number, unit = 'rem') => `calc(${val}${unit} * var(--pru-sm, 1))
  * cap is checked). Dividing by `--pru-sm` here pre-compensates so the
  * rendered, zoomed-out size still tops out at 95vw/90vh of the real viewport.
  */
-const PluginModal = styled(BBBModal)<{ $modalUiScale?: number; $hideCloseButton?: boolean }>`
+const PluginModal = styled(BBBModal)<{
+  $modalUiScale?: number;
+  $hideCloseButton?: boolean;
+  $lockCloseButton?: boolean;
+}>`
   --pru-sm: ${({ $modalUiScale }) => $modalUiScale ?? 1};
   zoom: var(--pru-sm, 1);
   position: relative;
@@ -63,6 +67,15 @@ const PluginModal = styled(BBBModal)<{ $modalUiScale?: number; $hideCloseButton?
   ${({ $hideCloseButton }) => $hideCloseButton && css`
     & [data-test$='-close-button'] {
       display: none;
+    }
+  `}
+
+  /* Nor has it a prop to disable the button. While the reel spins the close request is
+     ignored anyway (see PickUserModal), so the button is only made to look disabled. */
+  ${({ $lockCloseButton }) => $lockCloseButton && css`
+    & [data-test$='-close-button'] {
+      opacity: 0.4;
+      pointer-events: none;
     }
   `}
 `;
