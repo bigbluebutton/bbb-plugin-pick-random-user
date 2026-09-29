@@ -2,6 +2,9 @@ import * as React from 'react';
 import { RESET_DATA_CHANNEL } from 'bigbluebutton-html-plugin-sdk';
 import { DataChannelEntryResponseType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
 import { defineMessages } from 'react-intl';
+import {
+  BBButton, BBBCheckbox, BBBDivider, BBBScrollArea, BBBSpinner, BBBTypography,
+} from '@bigbluebutton/bbb-ui-components-react';
 
 import * as Styled from './styles';
 import { PickedUser } from '../../pick-random-user/types';
@@ -9,6 +12,12 @@ import { PresenterViewComponentProps } from './types';
 import { UserAvatar } from '../user-avatar/component';
 import { useGetPickRandomUserFunction } from './hooks';
 import { formatPickedTime } from './utils';
+
+// Caps the scroll area to the height ListCard's flex:1 actually resolves to
+// (a real, layout-computed value, since ListCard is itself a flex item) —
+// this is what lets each list fill its equal share of the panel instead of
+// stopping at a fixed height, while still scrolling once content overflows it.
+const LIST_MAX_HEIGHT = '100%';
 
 const intlMessages = defineMessages({
   filterChipsLabel: {
@@ -113,45 +122,17 @@ const intlMessages = defineMessages({
   },
 });
 
-function CheckboxSquare({ active }: { active: boolean }) {
-  const style: React.CSSProperties = active ? {
-    width: '0.875rem',
-    height: '0.875rem',
-    borderRadius: '3px',
-    background: '#4E7FF8',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  } : {
-    width: '0.875rem',
-    height: '0.875rem',
-    borderRadius: '3px',
-    background: '#fff',
-    border: '1.5px solid #C0C8D4',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  };
-  return (
-    <span style={style}>
-      {active && (
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      )}
-    </span>
-  );
-}
-
 function makePickedUserRows(list?: DataChannelEntryResponseType<PickedUser>[]) {
   return list?.filter((u) => !!u.payloadJson).map((u) => (
-    <Styled.PickedUserRow key={`${u.payloadJson.userId}-${new Date(u.createdAt).getTime()}`}>
+    <Styled.UserRow key={`${u.payloadJson.userId}-${new Date(u.createdAt).getTime()}`}>
       <UserAvatar user={u.payloadJson} size="small" />
-      <Styled.UserNameText>{u.payloadJson.name}</Styled.UserNameText>
-      <Styled.PickedTimeText>{formatPickedTime(u.createdAt)}</Styled.PickedTimeText>
-    </Styled.PickedUserRow>
+      <Styled.UserNameText>
+        <BBBTypography as="span" variant="default">{u.payloadJson.name}</BBBTypography>
+      </Styled.UserNameText>
+      <Styled.PickedTimeText>
+        <BBBTypography as="span" variant="text3">{formatPickedTime(u.createdAt)}</BBBTypography>
+      </Styled.PickedTimeText>
+    </Styled.UserRow>
   ));
 }
 
@@ -194,146 +175,140 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
     <Styled.PresenterViewWrapper>
       <Styled.ContentPadding>
 
-        {/* FILTER CHIPS */}
+        {/* FILTER CHECKBOXES */}
         <Styled.OptionsSection>
           <Styled.FilterRow>
-            <Styled.FilterLabel>
+            <BBBTypography as="span" variant="text2">
               {intl.formatMessage(intlMessages.filterChipsLabel)}
-            </Styled.FilterLabel>
-            <Styled.ChipGroup>
-              <Styled.FilterChip
-                $active={includeModerators}
-                htmlFor="includeModerators"
-                data-test="includeModeratorsChip"
-              >
-                <Styled.ChipInput
-                  id="includeModerators"
-                  type="checkbox"
+            </BBBTypography>
+            <Styled.FilterCheckboxGroup>
+              <span data-test="includeModeratorsChip">
+                <BBBCheckbox
+                  inputProps={{ 'data-test': 'includeModeratorsCheckbox' } as React.InputHTMLAttributes<HTMLInputElement>}
+                  label={intl.formatMessage(intlMessages.moderatorsChipLabel)}
                   checked={includeModerators}
                   onChange={() => setFilterOptions((prev) => ({
                     ...prev, includeModerators: !prev.includeModerators,
                   }))}
                 />
-                <CheckboxSquare active={includeModerators} />
-                {intl.formatMessage(intlMessages.moderatorsChipLabel)}
-              </Styled.FilterChip>
+              </span>
 
-              <Styled.FilterChip
-                $active={includePresenter}
-                htmlFor="includePresenter"
-                data-test="includePresenterChip"
-              >
-                <Styled.ChipInput
-                  id="includePresenter"
-                  type="checkbox"
+              <span data-test="includePresenterChip">
+                <BBBCheckbox
+                  inputProps={{ 'data-test': 'includePresenterCheckbox' } as React.InputHTMLAttributes<HTMLInputElement>}
+                  label={intl.formatMessage(intlMessages.presenterChipLabel)}
                   checked={includePresenter}
                   onChange={() => setFilterOptions((prev) => ({
                     ...prev, includePresenter: !prev.includePresenter,
                   }))}
                 />
-                <CheckboxSquare active={includePresenter} />
-                {intl.formatMessage(intlMessages.presenterChipLabel)}
-              </Styled.FilterChip>
+              </span>
 
-              <Styled.FilterChip
-                $active={includePickedUsers}
-                htmlFor="includePickedUsers"
-                data-test="includePickedUsersChip"
-              >
-                <Styled.ChipInput
-                  id="includePickedUsers"
-                  type="checkbox"
+              <span data-test="includePickedUsersChip">
+                <BBBCheckbox
+                  inputProps={{ 'data-test': 'includePickedUsersCheckbox' } as React.InputHTMLAttributes<HTMLInputElement>}
+                  label={intl.formatMessage(intlMessages.pickedUsersChipLabel)}
                   checked={includePickedUsers}
                   onChange={() => setFilterOptions((prev) => ({
                     ...prev, includePickedUsers: !prev.includePickedUsers,
                   }))}
                 />
-                <CheckboxSquare active={includePickedUsers} />
-                {intl.formatMessage(intlMessages.pickedUsersChipLabel)}
-              </Styled.FilterChip>
-            </Styled.ChipGroup>
+              </span>
+            </Styled.FilterCheckboxGroup>
           </Styled.FilterRow>
         </Styled.OptionsSection>
 
         {/* AVAILABLE USERS SECTION */}
         <Styled.AvailableSection>
           <Styled.SectionHeaderRow data-test="pickRandomUserAvailableContent">
-            <Styled.SectionLabel>
+            <BBBTypography as="span" variant="text2">
               {intl.formatMessage(intlMessages.availableTitle)}
-            </Styled.SectionLabel>
-            <Styled.CountBadge>
+            </BBBTypography>
+            <BBBTypography as="span" variant="button">
               {usersCount}
               {' '}
               {userRoleLabel}
-            </Styled.CountBadge>
+            </BBBTypography>
           </Styled.SectionHeaderRow>
           {isLoading && (
             <Styled.LoadingContainer data-test="pickRandomUserAvailableLoading">
-              <Styled.SpinnerRing />
-              <Styled.LoadingText>
+              <BBBSpinner size="1rem" strokeWidth={3} />
+              <BBBTypography as="span" variant="text2">
                 {intl.formatMessage(intlMessages.availableLoading)}
-              </Styled.LoadingText>
+              </BBBTypography>
             </Styled.LoadingContainer>
           )}
           {!isLoading && usersCount === 0 && (
             <Styled.EmptyStateContainer>
-              <Styled.EmptyStateText>
+              <BBBTypography as="span" variant="text2">
                 {intl.formatMessage(intlMessages.availableEmptyState, { 0: userRoleLabel })}
-              </Styled.EmptyStateText>
+              </BBBTypography>
             </Styled.EmptyStateContainer>
           )}
           {!isLoading && usersCount > 0 && (
-            <Styled.UserListContainer>
-              {usersToBePicked?.map((user) => {
-                let roleBadgeLabel: string | null = null;
-                if (user.role === 'MODERATOR') {
-                  roleBadgeLabel = intl.formatMessage(intlMessages.moderatorRoleLabel);
-                } else if (user.presenter) {
-                  roleBadgeLabel = intl.formatMessage(intlMessages.presenterRoleLabel);
-                }
-                return (
-                  <Styled.UserRow key={user.userId}>
-                    <UserAvatar user={user} size="small" />
-                    <Styled.UserNameText>{user.name}</Styled.UserNameText>
-                    {roleBadgeLabel && (
-                      <Styled.RoleBadge>{roleBadgeLabel}</Styled.RoleBadge>
-                    )}
-                  </Styled.UserRow>
-                );
-              })}
-            </Styled.UserListContainer>
+            <Styled.ListCard>
+              <BBBScrollArea maxHeight={LIST_MAX_HEIGHT} fadeEdges={false}>
+                <Styled.UserList>
+                  {usersToBePicked?.map((user) => {
+                    let roleBadgeLabel: string | null = null;
+                    if (user.role === 'MODERATOR') {
+                      roleBadgeLabel = intl.formatMessage(intlMessages.moderatorRoleLabel);
+                    } else if (user.presenter) {
+                      roleBadgeLabel = intl.formatMessage(intlMessages.presenterRoleLabel);
+                    }
+                    return (
+                      <Styled.UserRow key={user.userId}>
+                        <UserAvatar user={user} size="small" />
+                        <Styled.UserNameText>
+                          <BBBTypography as="span" variant="default">{user.name}</BBBTypography>
+                        </Styled.UserNameText>
+                        {roleBadgeLabel && (
+                          <Styled.RoleBadge>
+                            <BBBTypography as="span" variant="text3">
+                              {roleBadgeLabel}
+                            </BBBTypography>
+                          </Styled.RoleBadge>
+                        )}
+                      </Styled.UserRow>
+                    );
+                  })}
+                </Styled.UserList>
+              </BBBScrollArea>
+            </Styled.ListCard>
           )}
         </Styled.AvailableSection>
 
         {/* PREVIOUSLY PICKED SECTION */}
         <Styled.PreviouslyPickedSection>
           <Styled.SectionHeaderRow>
-            <Styled.SectionLabel>
+            <BBBTypography as="span" variant="text2">
               {intl.formatMessage(intlMessages.previouslyPickedTitle)}
-            </Styled.SectionLabel>
-            <Styled.ClearAllButton
-              type="button"
-              data-test="pickRandomUserClearAllButton"
+            </BBBTypography>
+            <BBButton
+              variant="subtle"
+              size="sm"
+              dataTest="pickRandomUserClearAllButton"
+              label={intl.formatMessage(intlMessages.clearButtonLabel)}
               onClick={() => deletionFunction([RESET_DATA_CHANNEL])}
-            >
-              {intl.formatMessage(intlMessages.clearButtonLabel)}
-            </Styled.ClearAllButton>
+            />
           </Styled.SectionHeaderRow>
           {hasPickedUsers ? (
-            <Styled.PickedUserListContainer>
-              <Styled.PickedList data-test="pickRandomUserPreviouslyPickedList">
-                {makePickedUserRows(dataChannelPickedUsers)}
-              </Styled.PickedList>
-            </Styled.PickedUserListContainer>
+            <Styled.ListCard>
+              <BBBScrollArea maxHeight={LIST_MAX_HEIGHT} fadeEdges={false}>
+                <Styled.UserList data-test="pickRandomUserPreviouslyPickedList">
+                  {makePickedUserRows(dataChannelPickedUsers)}
+                </Styled.UserList>
+              </BBBScrollArea>
+            </Styled.ListCard>
           ) : (
             <>
               <Styled.EmptyStateContainer>
-                <Styled.EmptyStateText>
+                <BBBTypography as="span" variant="text2">
                   {intl.formatMessage(intlMessages.emptyState)}
-                </Styled.EmptyStateText>
+                </BBBTypography>
               </Styled.EmptyStateContainer>
               {/* Empty list kept in DOM so [data-test] li selectors resolve correctly */}
-              <Styled.PickedList data-test="pickRandomUserPreviouslyPickedList" />
+              <Styled.UserList data-test="pickRandomUserPreviouslyPickedList" />
             </>
           )}
         </Styled.PreviouslyPickedSection>
@@ -342,29 +317,33 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
 
       {/* FOOTER */}
       <Styled.FooterContainer>
-        {isLoading && (
-          <Styled.NoUsersWarning data-test="pickRandomUserLoadingWarning">
-            {intl.formatMessage(intlMessages.availableLoading)}
-          </Styled.NoUsersWarning>
-        )}
-        {!isLoading && usersCount > 0 && (
-          <Styled.PickButton
-            type="button"
-            data-test="pickRandomUserPickButton"
-            onClick={handlePickRandomUser}
-          >
-            {pickedUserWithEntryId
-              ? intl.formatMessage(includePickedUsers
-                ? intlMessages.pickNextRandomUserButtonLabel
-                : intlMessages.pickAnotherRandomUserButtonLabel)
-              : intl.formatMessage(intlMessages.pickButtonLabel)}
-          </Styled.PickButton>
-        )}
-        {!isLoading && usersCount === 0 && (
-          <Styled.NoUsersWarning data-test="pickRandomUserNoUsersWarning">
-            {intl.formatMessage(intlMessages.noUsersWarning, { 0: userRoleLabel })}
-          </Styled.NoUsersWarning>
-        )}
+        <BBBDivider />
+        <Styled.FooterContent>
+          {isLoading && (
+            <Styled.NoUsersWarning data-test="pickRandomUserLoadingWarning">
+              {intl.formatMessage(intlMessages.availableLoading)}
+            </Styled.NoUsersWarning>
+          )}
+          {!isLoading && usersCount > 0 && (
+            <Styled.PickButtonWrapper>
+              <BBButton
+                variant="primary"
+                dataTest="pickRandomUserPickButton"
+                onClick={handlePickRandomUser}
+                label={pickedUserWithEntryId
+                  ? intl.formatMessage(includePickedUsers
+                    ? intlMessages.pickNextRandomUserButtonLabel
+                    : intlMessages.pickAnotherRandomUserButtonLabel)
+                  : intl.formatMessage(intlMessages.pickButtonLabel)}
+              />
+            </Styled.PickButtonWrapper>
+          )}
+          {!isLoading && usersCount === 0 && (
+            <Styled.NoUsersWarning data-test="pickRandomUserNoUsersWarning">
+              {intl.formatMessage(intlMessages.noUsersWarning, { 0: userRoleLabel })}
+            </Styled.NoUsersWarning>
+          )}
+        </Styled.FooterContent>
       </Styled.FooterContainer>
     </Styled.PresenterViewWrapper>
   );

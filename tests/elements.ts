@@ -14,7 +14,7 @@ export const elements = {
   pickRandomUserPanel: 'div[data-test="pickRandomUserPanel"]',
 
   // Modal close button
-  pickRandomUserModalCloseButton: '[data-test="pickRandomUserModalCloseButton"]',
+  pickRandomUserModalCloseButton: '[data-test="pickRandomUserModal-close-button"]',
 
   // Presenter view – filter chips (label elements, for click and visibility checks)
   includeModeratorsChip: '[data-test="includeModeratorsChip"]',
@@ -22,9 +22,9 @@ export const elements = {
   includePickedUsersChip: '[data-test="includePickedUsersChip"]',
 
   // Presenter view – filter checkboxes (hidden inputs, for isChecked / not.toBeChecked only)
-  includeModeratorsCheckbox: '#includeModerators',
-  includePresenterCheckbox: '#includePresenter',
-  includePickedUsersCheckbox: '#includePickedUsers',
+  includeModeratorsCheckbox: '[data-test="includeModeratorsCheckbox"]',
+  includePresenterCheckbox: '[data-test="includePresenterCheckbox"]',
+  includePickedUsersCheckbox: '[data-test="includePickedUsersCheckbox"]',
 
   // Presenter view – available users section
   pickRandomUserAvailableContent: '[data-test="pickRandomUserAvailableContent"]',

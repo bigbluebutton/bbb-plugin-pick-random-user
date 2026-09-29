@@ -1,3 +1,4 @@
+import { colors } from '@bigbluebutton/bbb-ui-components-react/colors';
 import styled from 'styled-components';
 
 const SIZES = {
@@ -16,7 +17,7 @@ const AvatarInitials = styled.div<{ $size: 'small' | 'large'; $color: string; $i
   justify-content: center;
   font-size: ${({ $size }) => SIZES[$size].fontSize};
   font-weight: ${({ $size }) => SIZES[$size].fontWeight};
-  color: #fff;
+  color: ${colors.neutral.white};
   text-transform: capitalize;
 `;
 
