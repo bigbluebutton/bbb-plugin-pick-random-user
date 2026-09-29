@@ -2,7 +2,9 @@ import * as React from 'react';
 import {
   describe, it, expect, vi,
 } from 'vitest';
-import { render, renderHook } from '@testing-library/react';
+import {
+  render, renderHook, act,
+} from '@testing-library/react';
 import { createIntl } from 'react-intl';
 import GenericContentSidekickAreaManager from '../../src/components/extensible-areas/generic-content-sidekick-area/component';
 import { useGetInternationalization } from '../../src/commons/hooks';
@@ -145,6 +147,63 @@ describe('sidekick area registration', () => {
     );
 
     expect(setGenericContentItems).not.toHaveBeenCalled();
+  });
+});
+
+// Regression test for https://github.com/bigbluebutton/bbb-plugin-pick-random-user/issues/135:
+// switching the client's display language while the sidekick panel is open crashed the
+// client with "Cannot update an unmounted root.". The client re-registers the item's
+// contentFunction whenever this plugin's effect re-runs for a new intl/locale, and it may
+// unmount the root it was previously handed before calling contentFunction again for the
+// very same container — that sequence is what the reused id from the second test above
+// makes possible.
+function makePluginApiForPanel(setGenericContentItems: ReturnType<typeof vi.fn>) {
+  return {
+    setGenericContentItems,
+    useCurrentUser: () => ({ data: { userId: 'presenter-1', presenter: true } }),
+    useDataChannel: () => ({
+      data: { loading: false, data: [] },
+      pushEntry: vi.fn(),
+      deleteEntry: vi.fn(),
+    }),
+  } as never;
+}
+
+describe('sidekick area contentFunction (issue #135)', () => {
+  it('recovers instead of crashing when the client re-invokes contentFunction on a container whose root it already unmounted', () => {
+    const setGenericContentItems = vi.fn(() => ['generated-id-1']);
+    const pluginApi = makePluginApiForPanel(setGenericContentItems);
+
+    render(
+      <GenericContentSidekickAreaManager
+        pluginApi={pluginApi}
+        intl={intl}
+        currentUser={currentUser(true)}
+        pickRandomUserSettings={settings()}
+      />,
+    );
+
+    const { contentFunction } = setGenericContentItems.mock.calls[0][0][0];
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+
+    let firstRoot: { unmount: () => void };
+    act(() => {
+      firstRoot = contentFunction(container);
+    });
+
+    // The client tears down the root it was handed for the previously registered content
+    // (e.g. while processing a re-registration triggered by a locale change) but keeps
+    // reusing the same container element.
+    act(() => {
+      firstRoot.unmount();
+    });
+
+    expect(() => act(() => {
+      contentFunction(container);
+    })).not.toThrow();
+
+    expect(container.querySelector('[data-test="pickRandomUserPanel"]')).not.toBeNull();
   });
 });
 

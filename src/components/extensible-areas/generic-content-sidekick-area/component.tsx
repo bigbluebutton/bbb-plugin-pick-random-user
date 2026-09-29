@@ -42,9 +42,17 @@ function GenericContentSidekickAreaManager(
 
   const genericContentId = useRef<string | undefined>('');
   // The client may call contentFunction more than once for the same container (for
-  // instance when the item is re-registered). Calling createRoot twice on one element
-  // detaches the previously rendered tree and leaves the panel blank, so the root is
-  // kept and reused for as long as the container is the same node.
+  // instance when the item is re-registered, which happens whenever this effect below
+  // reruns for a new intl - e.g. a language change). Calling createRoot twice on one
+  // element detaches the previously rendered tree and leaves the panel blank, so the root
+  // is kept and reused for as long as the container is the same node.
+  //
+  // The client also owns the returned root's lifecycle: while the panel is open, a
+  // re-registration can make it unmount the root it was previously handed for this same
+  // container before calling contentFunction again. That unmount happens from outside this
+  // closure, so the cached entry below is wrapped to notice it and drop itself - otherwise
+  // `render` is called on an already-unmounted root and the client crashes with
+  // "Cannot update an unmounted root." (issue #135).
   const panelRoot = useRef<{ element: HTMLElement; root: ReactDOM.Root } | null>(null);
 
   const sidekickAreaName = intl.formatMessage(intlMessages.sidekickAreaTitle);
@@ -57,7 +65,19 @@ function GenericContentSidekickAreaManager(
         new GenericContentSidekickArea({
           contentFunction: (element: HTMLElement) => {
             if (!panelRoot.current || panelRoot.current.element !== element) {
-              panelRoot.current = { element, root: ReactDOM.createRoot(element) };
+              const root = ReactDOM.createRoot(element);
+              panelRoot.current = {
+                element,
+                root: {
+                  render: (node) => root.render(node),
+                  unmount: () => {
+                    root.unmount();
+                    if (panelRoot.current?.element === element) {
+                      panelRoot.current = null;
+                    }
+                  },
+                },
+              };
             }
             panelRoot.current.root.render(
               <PickRandomUserPanel
