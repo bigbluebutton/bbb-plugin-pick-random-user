@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { defineMessages } from 'react-intl';
+import { BBButton, BBBTypography } from '@bigbluebutton/bbb-ui-components-react';
+import { colors } from '@bigbluebutton/bbb-ui-components-react/colors';
 import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
 import { hasCurrentUserSeenPickedUser } from '../../../commons/utils';
@@ -46,26 +48,37 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
   return (
     <Styled.PickedUserViewWrapper>
       <Styled.PickedUserViewBody>
-        <Styled.ResultSectionLabel data-test="pickRandomUserPickedUserViewTitle">
-          {intl.formatMessage(intlMessages.resultSectionLabel)}
-        </Styled.ResultSectionLabel>
+        <span data-test="pickRandomUserPickedUserViewTitle">
+          {/* header for weight (bold, uppercase) with text2's muted color — same
+              treatment as the panel's own subtitles ("Available for selection", ...) */}
+          <BBBTypography as="span" variant="header" style={{ color: colors.text.light }}>
+            {intl.formatMessage(intlMessages.resultSectionLabel)}
+          </BBBTypography>
+        </span>
         {
           (pickedUserWithEntryId) ? (
-            <>
+            <Styled.PickedUserAvatarAndName>
               <UserAvatar
                 user={pickedUserWithEntryId.pickedUser}
                 size="large"
               />
-              <Styled.PickedUserName data-test="pickRandomUserPickedUserName">{pickedUserWithEntryId?.pickedUser?.name}</Styled.PickedUserName>
-            </>
+              <span data-test="pickRandomUserPickedUserName">
+                <BBBTypography as="span" variant="selected">
+                  {pickedUserWithEntryId?.pickedUser?.name}
+                </BBBTypography>
+              </span>
+            </Styled.PickedUserAvatarAndName>
           ) : null
         }
       </Styled.PickedUserViewBody>
       {currentUser?.presenter && showBackButton && (
         <Styled.PickedUserViewFooter>
-          <Styled.BackButton type="button" data-test="pickRandomUserBackButton" onClick={handleBack}>
-            {intl.formatMessage(intlMessages.backButtonLabel)}
-          </Styled.BackButton>
+          <BBButton
+            variant="primary"
+            dataTest="pickRandomUserBackButton"
+            label={intl.formatMessage(intlMessages.backButtonLabel)}
+            onClick={handleBack}
+          />
         </Styled.PickedUserViewFooter>
       )}
     </Styled.PickedUserViewWrapper>

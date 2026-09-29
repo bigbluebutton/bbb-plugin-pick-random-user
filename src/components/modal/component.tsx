@@ -3,6 +3,7 @@ import {
 } from 'react';
 import * as React from 'react';
 import { defineMessages } from 'react-intl';
+import { colors } from '@bigbluebutton/bbb-ui-components-react/colors';
 import * as Styled from './styles';
 import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
@@ -12,6 +13,19 @@ import { MIN_PREVENT_CLOSE_DELAY_FOR_TOAST_SECONDS } from '../../commons/constan
 // Time a bot user is given to look at the picked user before the modal closes itself.
 const BOT_AUTO_CLOSE_DURATION_MS = 5000;
 const BOT_AUTO_CLOSE_TICK_MS = 30;
+
+// BBBModal derives the close button's data-test from `testId` (as
+// `${testId}-close-button`) when `closeButtonDataTest` is left unset.
+// BBBModal's own built-in close button hardcodes its aria-label to the
+// English "close", with no prop to override it — this data-test is the only
+// hook it exposes, so the effect below uses it to patch in a translated one.
+const MODAL_TEST_ID = 'pickRandomUserModal';
+const CLOSE_BUTTON_DATA_TEST = `${MODAL_TEST_ID}-close-button`;
+
+// react-modal appends the portal to whatever this returns, with no null check of
+// its own, so fall back to its own default when the client has not rendered the
+// container — the plugin should not take the whole client down over a missing node.
+const getModalParent = () => document.querySelector<HTMLElement>('#modals-container') ?? document.body;
 
 const intlMessages = defineMessages({
   currentUserPicked: {
@@ -86,6 +100,36 @@ export function PickUserModal(props: PickUserModalProps) {
   } = props;
 
   const modalAnchor = useRef(document.getElementById(uuid));
+
+  const closeButtonAriaLabel = intl.formatMessage(intlMessages.closeButtonAriaLabel);
+
+  // A plain one-shot `setAttribute` isn't enough: React re-renders this modal
+  // constantly (the countdown ticks `remainingSeconds` every 100ms) and keeps
+  // reasserting the button's own hardcoded aria-label on every one of those
+  // re-renders, silently reverting our fix-up almost immediately. Watching for
+  // that and re-applying is the only way to keep it patched in reliably.
+  useEffect(() => {
+    if (!showModal) return undefined;
+    const container = document.querySelector('#modals-container');
+    if (!container) return undefined;
+
+    const applyLabel = () => {
+      const closeButton = container.querySelector(`[data-test="${CLOSE_BUTTON_DATA_TEST}"]`);
+      if (closeButton && closeButton.getAttribute('aria-label') !== closeButtonAriaLabel) {
+        closeButton.setAttribute('aria-label', closeButtonAriaLabel);
+      }
+    };
+
+    applyLabel();
+    const observer = new MutationObserver(applyLabel);
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['aria-label'],
+    });
+    return () => observer.disconnect();
+  }, [showModal, closeButtonAriaLabel]);
 
   const [botProgress, setBotProgress] = useState(0);
 
@@ -174,7 +218,7 @@ export function PickUserModal(props: PickUserModalProps) {
         height="14"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="#4A6CF7"
+        stroke={colors.icon.blue}
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -199,40 +243,34 @@ export function PickUserModal(props: PickUserModalProps) {
 
   if (!showModal) return null;
 
-  const handleCloseAttempt = () => {
-    if (canClose && !isBot) {
-      handleCloseModal();
-    }
+  // The prevent-close countdown holds back the passive dismissals only — an
+  // overlay click and ESC — so a user who does not want to look at the picked
+  // result still has an explicit way out at any time (see PR #84). react-modal
+  // routes those two through `onRequestClose` only while their respective
+  // `shouldCloseOn*` prop is true, so while the countdown runs this handler is
+  // reached by BBBModal's close button alone, and closing there is intended.
+  const handleRequestClose = () => {
+    if (isBot) return;
+    handleCloseModal();
   };
 
   return (
     <Styled.PluginModal
       overlayClassName="modalOverlay"
       portalClassName="modal-low"
-      appElement={modalAnchor.current}
-      parentSelector={() => document.querySelector('#modals-container')}
+      appElement={modalAnchor.current ?? undefined}
+      parentSelector={getModalParent}
       isOpen={showModal}
-      onRequestClose={handleCloseAttempt}
+      onRequestClose={handleRequestClose}
       shouldCloseOnOverlayClick={canClose && !isBot}
       shouldCloseOnEsc={canClose && !isBot}
       overlayElement={renderOverlay}
       $modalUiScale={pickRandomUserSettings.modalUiScale}
+      $hideCloseButton={isBot}
+      title={intl.formatMessage(intlMessages.modalTitle)}
+      testId={MODAL_TEST_ID}
+      noFooter
     >
-      <Styled.ModalHeader>
-        <Styled.ModalTitle>
-          {intl.formatMessage(intlMessages.modalTitle)}
-        </Styled.ModalTitle>
-        {!isBot && (
-          <Styled.CloseButton
-            type="button"
-            onClick={handleCloseModal}
-            aria-label={intl.formatMessage(intlMessages.closeButtonAriaLabel)}
-            data-test="pickRandomUserModalCloseButton"
-          >
-            <i className="icon-bbb-close" />
-          </Styled.CloseButton>
-        )}
-      </Styled.ModalHeader>
       <PickedUserViewComponent
         {...{
           pickedUserSeenEntries,
