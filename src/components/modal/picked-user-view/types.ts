@@ -19,6 +19,8 @@ export interface PickedUserViewComponentProps {
     handleClose: () => void;
     // Bots get no footer buttons: they cannot use them.
     isBot: boolean;
+    // The `reelAnimationEnabled` setting: off, the reel shows the result without spinning.
+    reelAnimationEnabled: boolean;
     // Whether the reel is still spinning, when neither footer button can be used.
     reelSpinning: boolean;
     onReelSpinningChange: (spinning: boolean) => void;

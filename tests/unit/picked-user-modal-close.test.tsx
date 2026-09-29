@@ -3,7 +3,7 @@ import {
 } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import {
-  NAMES, finishSpin, pick, prepareModalContainers, renderModal,
+  NAMES, finishSpin, pick, prepareModalContainers, renderModal, settings,
 } from './helpers/pick-user-modal';
 
 vi.mock('bigbluebutton-html-plugin-sdk', () => ({
@@ -76,6 +76,17 @@ describe('closing the picked-user modal', () => {
 
     expect(closeButton()).toBeDisabled();
     expect(handleCloseModal).not.toHaveBeenCalled();
+  });
+
+  it('can be closed right away when the reel animation is turned off', () => {
+    const { handleCloseModal } = renderModal({
+      pickRandomUserSettings: settings({ reelAnimationEnabled: false }),
+    });
+
+    expect(closeButton()).toBeEnabled();
+    fireEvent.click(closeButton());
+
+    expect(handleCloseModal).toHaveBeenCalledTimes(1);
   });
 
   it('can be closed right away when the result shows without a spin', () => {

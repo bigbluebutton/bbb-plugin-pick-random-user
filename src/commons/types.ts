@@ -5,4 +5,5 @@ export interface PickRandomUserSettings {
   pickedUserTimeWindow: number;
   preventCloseDelaySeconds: number;
   modalUiScale: number;
+  reelAnimationEnabled: boolean;
 }

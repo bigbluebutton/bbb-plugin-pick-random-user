@@ -35,6 +35,7 @@ const settings = {
   pickedUserTimeWindow: 0,
   preventCloseDelaySeconds: 30,
   modalUiScale: 1,
+  reelAnimationEnabled: true,
 };
 
 const CLOSE_BUTTON = '[data-test="pickRandomUserModal-close-button"]';

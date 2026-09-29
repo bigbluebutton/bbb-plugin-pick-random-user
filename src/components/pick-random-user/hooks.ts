@@ -65,6 +65,15 @@ export const getBrowserNotificationEnabled = (
   } return !!settings.browserNotificationEnabled;
 };
 
+export const getReelAnimationEnabled = (
+  settings: PluginSettingsData,
+  previousState: boolean,
+): boolean => {
+  if (settings.reelAnimationEnabled === undefined || settings.reelAnimationEnabled === null) {
+    return previousState;
+  } return !!settings.reelAnimationEnabled;
+};
+
 export const getPickedUserTimeWindowFromSettings = (settings: PluginSettingsData) => {
   const settingTimeWindow = settings.pickedUserTimeWindow as unknown;
   if (isNumber(settingTimeWindow)) {
@@ -111,6 +120,7 @@ export const useGetAllSettings = (
     DEFAULT_PREVENT_CLOSE_DELAY_SECONDS,
   );
   const [modalUiScale, setModalUiScale] = useState<number>(DEFAULT_MODAL_UI_SCALE);
+  const [reelAnimationEnabled, setReelAnimationEnabled] = useState<boolean>(true);
   useSettingsLoaded((settings) => {
     setBrowserNotificationEnabled(
       (previousState) => getBrowserNotificationEnabled(settings, previousState),
@@ -122,6 +132,9 @@ export const useGetAllSettings = (
     setPingSoundUrl(getPingSoundUrl(settings));
     setPreventCloseDelaySeconds(getPreventCloseDelayFromSettings(settings));
     setModalUiScale(getSizeMultiplierFromSettings(settings));
+    setReelAnimationEnabled(
+      (previousState) => getReelAnimationEnabled(settings, previousState),
+    );
   }, settingsData);
   return {
     pingSoundEnabled,
@@ -130,6 +143,7 @@ export const useGetAllSettings = (
     pickedUserTimeWindow,
     preventCloseDelaySeconds,
     modalUiScale,
+    reelAnimationEnabled,
   };
 };
 

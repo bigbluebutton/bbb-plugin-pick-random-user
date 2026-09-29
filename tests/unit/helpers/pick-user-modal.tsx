@@ -20,6 +20,7 @@ export const settings = (overrides = {}) => ({
   pickedUserTimeWindow: 10,
   preventCloseDelaySeconds: 0,
   modalUiScale: 1,
+  reelAnimationEnabled: true,
   ...overrides,
 });
 

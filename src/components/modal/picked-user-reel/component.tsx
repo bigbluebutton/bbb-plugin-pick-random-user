@@ -20,9 +20,16 @@ export function PickedUserReel(props: PickedUserReelProps) {
     spinKey,
     onSpinningChange,
     onLanded,
+    animated = true,
   } = props;
 
-  const { position, spinning } = useReelSpin(names.length, targetIndex, spinKey, onLanded);
+  const { position, spinning } = useReelSpin(
+    names.length,
+    targetIndex,
+    spinKey,
+    onLanded,
+    animated,
+  );
 
   useEffect(() => {
     onSpinningChange?.(spinning);

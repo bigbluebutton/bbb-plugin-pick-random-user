@@ -19,6 +19,8 @@ const prefersReducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motio
  * @param spinKey identifies the pick; a new value starts a new spin
  * @param onLanded called once per pick when the reel stops on the result (right away when
  * it does not spin at all)
+ * @param animated whether to spin at all; when false the result shows right away, as it
+ * does for a single name or when the user prefers reduced motion
  * @returns the reel position (fractional while spinning) and whether it is spinning
  */
 export const useReelSpin = (
@@ -26,6 +28,7 @@ export const useReelSpin = (
   targetIndex: number,
   spinKey: string,
   onLanded?: () => void,
+  animated = true,
 ) => {
   const [spin, setSpin] = useState({ position: targetIndex, spinning: false });
   const positionRef = useRef<number | null>(null);
@@ -43,7 +46,7 @@ export const useReelSpin = (
       onLandedRef.current?.();
     };
 
-    if (length < 2 || prefersReducedMotion()) {
+    if (!animated || length < 2 || prefersReducedMotion()) {
       land();
       return undefined;
     }

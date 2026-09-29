@@ -141,6 +141,7 @@ export function PickUserModal(props: PickUserModalProps) {
     pingSoundEnabled,
     pingSoundUrl,
     browserNotificationEnabled,
+    reelAnimationEnabled,
   } = pickRandomUserSettings;
 
   // The picked user is told only once the reel stops on their name, so the ping sound and
@@ -298,6 +299,7 @@ export function PickUserModal(props: PickUserModalProps) {
           currentUser,
           handleClose: handleCloseModal,
           isBot,
+          reelAnimationEnabled,
           reelSpinning,
           onReelSpinningChange: setReelSpinning,
           onReelLanded: handleReelLanded,

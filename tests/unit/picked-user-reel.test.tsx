@@ -49,6 +49,14 @@ describe('useReelSpin', () => {
     expect(result.current).toEqual({ position: 2, spinning: false });
   });
 
+  it('does not spin when the animation is turned off', () => {
+    const onLanded = vi.fn();
+    const { result } = renderHook(() => useReelSpin(NAMES.length, 2, 'entry-1', onLanded, false));
+
+    expect(result.current).toEqual({ position: 2, spinning: false });
+    expect(onLanded).toHaveBeenCalledTimes(1);
+  });
+
   it('carries on from where it is when a new pick arrives mid-spin', () => {
     const { result, rerender } = renderHook(
       ({ target, key }) => useReelSpin(NAMES.length, target, key),

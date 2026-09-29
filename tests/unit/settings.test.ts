@@ -7,6 +7,7 @@ import {
   getPickedUserTimeWindowFromSettings,
   getPreventCloseDelayFromSettings,
   getPingSoundUrl,
+  getReelAnimationEnabled,
 } from '../../src/components/pick-random-user/hooks';
 import {
   PICKED_USER_TIME_WINDOW,
@@ -38,6 +39,18 @@ describe('getBrowserNotificationEnabled', () => {
   it('coerces the configured value to a boolean', () => {
     expect(getBrowserNotificationEnabled(settings({ browserNotificationEnabled: true }), false)).toBe(true);
     expect(getBrowserNotificationEnabled(settings({ browserNotificationEnabled: false }), true)).toBe(false);
+  });
+});
+
+describe('getReelAnimationEnabled', () => {
+  it('keeps the previous state when the setting is absent', () => {
+    expect(getReelAnimationEnabled(settings({}), true)).toBe(true);
+    expect(getReelAnimationEnabled(settings({ reelAnimationEnabled: null }), false)).toBe(false);
+  });
+
+  it('coerces the configured value to a boolean', () => {
+    expect(getReelAnimationEnabled(settings({ reelAnimationEnabled: true }), false)).toBe(true);
+    expect(getReelAnimationEnabled(settings({ reelAnimationEnabled: false }), true)).toBe(false);
   });
 });
 
