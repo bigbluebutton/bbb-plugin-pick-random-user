@@ -89,6 +89,14 @@ describe('closing the picked-user modal', () => {
     expect(handleCloseModal).toHaveBeenCalledTimes(1);
   });
 
+  it('can be closed right away when the user turned Animations off in Settings', () => {
+    const { handleCloseModal } = renderModal({ clientAnimationsEnabled: false });
+
+    fireEvent.click(closeButton());
+
+    expect(handleCloseModal).toHaveBeenCalledTimes(1);
+  });
+
   it('can be closed right away when the result shows without a spin', () => {
     const { handleCloseModal } = renderModal({ currentPickedUser: pick('Eduarda', 'entry-1') });
 

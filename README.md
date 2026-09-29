@@ -43,7 +43,7 @@ Down below, we list all the possible configurations this plugin supports, and th
 | `pickedUserTimeWindow` | Time window to consider a user as recently picked (users that join after that time will not see the last modal) | `10`               |
 | `preventCloseDelaySeconds` | Delay in seconds before the modal can be closed to prevent accidental closures | `3` |
 | `modalUiScale` | Multiplier applied to all font sizes and spacing values in the modal UI | `1` |
-| `reelAnimationEnabled` | Flag that decides whether the modal spins a reel of names before showing the picked user. When `false`, the picked user shows right away | `true` |
+| `reelAnimationEnabled` | Flag that decides whether the modal spins a reel of names before showing the picked user. When `false`, the picked user shows right away. Even when `true`, the reel does not spin for users who turned Animations off in the client's Settings or whose system asks for reduced motion | `true` |
 
 
 ### Size Multiplier

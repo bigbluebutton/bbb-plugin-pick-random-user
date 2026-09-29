@@ -69,6 +69,12 @@ describe('picked user notification', () => {
     expectNotified(1);
   });
 
+  it('tells the picked user right away when they turned Animations off in Settings', () => {
+    renderModal({ clientAnimationsEnabled: false });
+
+    expectNotified(1);
+  });
+
   it('tells the picked user on time in a background tab, where no frame is drawn', () => {
     vi.stubGlobal('requestAnimationFrame', () => 0);
     renderModal({ currentUserName: 'Eduarda' });

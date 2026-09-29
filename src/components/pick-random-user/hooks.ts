@@ -2,6 +2,7 @@ import {
   CurrentUserData,
   DataChannelEntryResponseType,
   GraphqlResponseWrapper,
+  PluginApi,
 } from 'bigbluebutton-html-plugin-sdk';
 import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,9 @@ import {
   PickedUser,
   PickedUserSeenEntryDataChannel,
   PickedUserWithEntryId,
+  UserClientSettingsWrapper,
 } from './types';
+import { USER_CLIENT_SETTINGS_SUBSCRIPTION } from './queries';
 
 declare const window: WindowClientSettings;
 
@@ -145,6 +148,21 @@ export const useGetAllSettings = (
     modalUiScale,
     reelAnimationEnabled,
   };
+};
+
+/**
+ * Whether the user keeps "Animations" on in the client's Settings. The client stores the
+ * user's settings server-side as soon as they join and whenever they save them, so this
+ * follows the toggle during the meeting too. Until they arrive, animations count as on,
+ * which is also the client's own default.
+ * @param pluginApi plugin API of the current plugin instance
+ * @returns false only when the user turned Animations off
+ */
+export const useClientAnimationsEnabled = (pluginApi: PluginApi): boolean => {
+  const { data } = pluginApi
+    .useCustomSubscription!<UserClientSettingsWrapper>(USER_CLIENT_SETTINGS_SUBSCRIPTION) || {};
+  const settings = data?.user_current?.[0]?.userClientSettings?.userClientSettingsJson;
+  return settings?.application?.animations !== false;
 };
 
 // ---

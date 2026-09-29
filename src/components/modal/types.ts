@@ -21,6 +21,9 @@ export interface PickUserModalProps {
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>;
   pushPickedUserSeen: PushEntryFunction<PickedUserSeenEntryDataChannel>;
   isBot: boolean;
+  // The user's own "Animations" choice in the client's Settings (see
+  // useClientAnimationsEnabled). Defaults to true.
+  clientAnimationsEnabled?: boolean;
 }
 
 export interface FilterOptionsType {

@@ -52,6 +52,7 @@ export const renderModal = ({
   currentUserName = 'Eduarda',
   isBot = false,
   pickRandomUserSettings = settings(),
+  clientAnimationsEnabled = true,
 } = {}) => {
   const handleCloseModal = vi.fn();
   const props = {
@@ -64,6 +65,7 @@ export const renderModal = ({
     pickedUserSeenEntries: { data: [], loading: false } as never,
     pushPickedUserSeen: vi.fn(),
     isBot,
+    clientAnimationsEnabled,
   };
   // As in the plugin, the modal is mounted before anything is picked and opens when a pick
   // comes in through the data channel.

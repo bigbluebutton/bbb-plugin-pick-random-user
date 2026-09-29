@@ -99,6 +99,7 @@ export function PickUserModal(props: PickUserModalProps) {
     isBot,
     uuid,
     pluginApi,
+    clientAnimationsEnabled = true,
   } = props;
 
   const modalAnchor = useRef(document.getElementById(uuid));
@@ -143,6 +144,9 @@ export function PickUserModal(props: PickUserModalProps) {
     browserNotificationEnabled,
     reelAnimationEnabled,
   } = pickRandomUserSettings;
+
+  // The reel spins unless the plugin setting or the user's own Animations choice turns it off.
+  const reelAnimated = reelAnimationEnabled && clientAnimationsEnabled;
 
   // The picked user is told only once the reel stops on their name, so the ping sound and
   // the browser notification do not give the result away while it spins. The reel stops
@@ -299,7 +303,7 @@ export function PickUserModal(props: PickUserModalProps) {
           currentUser,
           handleClose: handleCloseModal,
           isBot,
-          reelAnimationEnabled,
+          reelAnimated,
           reelSpinning,
           onReelSpinningChange: setReelSpinning,
           onReelLanded: handleReelLanded,

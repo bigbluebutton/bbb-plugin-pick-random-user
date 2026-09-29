@@ -25,7 +25,7 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
     currentUser,
     handleClose,
     isBot,
-    reelAnimationEnabled,
+    reelAnimated,
     reelSpinning,
     onReelSpinningChange,
     pickedUserSeenEntries,
@@ -62,7 +62,7 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
             spinKey={pickedUserWithEntryId.entryId}
             onSpinningChange={onReelSpinningChange}
             onLanded={onReelLanded}
-            animated={reelAnimationEnabled}
+            animated={reelAnimated}
           />
         )}
       </Styled.PickedUserViewBody>
