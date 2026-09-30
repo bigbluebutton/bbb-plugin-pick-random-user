@@ -83,6 +83,7 @@ export class SessionPage {
       this.settings = await generateSettingsData(this.page);
       const autoJoinAudioModal = this.settings?.autoJoinAudioModal;
       if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
+      await this.waitUntilInMeeting();
     }
     // overwrite for font used in CI
     await this.page.addStyleTag({
@@ -131,5 +132,23 @@ export class SessionPage {
   async closeAudioModal() {
     await this.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.page.click(e.closeModal);
+  }
+
+  /**
+   * Wait until the in-session client is ready to be driven.
+   *
+   * Deliberately keyed on the apps gallery button rather than on the whiteboard: this
+   * plugin is reached through the apps gallery, and the button renders for moderators and
+   * viewers alike regardless of what the media area is showing. The whiteboard is a poor
+   * readiness signal here — a server that sets layout.hidePresentationOnJoin
+   * joins users with the presentation minimized,
+   * and the canvas is then not in the DOM at all, so waiting for it can only time out.
+   */
+  async waitUntilInMeeting(timeout = ELEMENT_WAIT_EXTRA_LONG_TIME) {
+    await this.hasElement(
+      e.appsGallerySidebarButton,
+      'should display the apps gallery button once the client is in the meeting',
+      timeout,
+    );
   }
 }

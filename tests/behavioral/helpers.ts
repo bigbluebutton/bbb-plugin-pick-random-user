@@ -36,7 +36,7 @@ export async function clickToggleOnWithRetry(
  * a sidebar and stays open between tests, so this is idempotent.
  */
 export async function openPickRandomUserPanel(modPage: Page): Promise<void> {
-  await modPage.page.waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_LONGER_TIME });
+  await modPage.waitUntilInMeeting();
 
   if (await modPage.page.locator(e.pickRandomUserPanel).isVisible()) return;
 

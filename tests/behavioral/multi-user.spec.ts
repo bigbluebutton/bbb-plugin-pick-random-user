@@ -29,11 +29,11 @@ const setPluginUrl = (url: string) => { pluginUrl = url; };
 const getPluginUrl = () => pluginUrl;
 
 /**
- * Wait for the attendee's page to finish loading the whiteboard.
+ * Wait for the attendee's client to finish loading.
  * This ensures the attendee is fully in the meeting before the presenter picks.
  */
 async function waitForAttendeeMeeting(attendeePage: Page): Promise<void> {
-  await attendeePage.page.waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_LONGER_TIME });
+  await attendeePage.waitUntilInMeeting();
 }
 
 /**
@@ -99,6 +99,7 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     if (attendeePage.settings?.autoJoinAudioModal) {
       await attendeePage.closeAudioModal();
     }
+    await attendeePage.waitUntilInMeeting();
     await attendeeRawPage.addStyleTag({
       content: "body { font-family: 'Liberation Sans', Arial, sans-serif; }",
     });
@@ -338,6 +339,7 @@ test.describe('Pick Random User Plugin - Behavioural (countdown and close-preven
     if (attendeePage.settings?.autoJoinAudioModal) {
       await attendeePage.closeAudioModal();
     }
+    await attendeePage.waitUntilInMeeting();
     await attendeeRawPage.addStyleTag({
       content: "body { font-family: 'Liberation Sans', Arial, sans-serif; }",
     });
