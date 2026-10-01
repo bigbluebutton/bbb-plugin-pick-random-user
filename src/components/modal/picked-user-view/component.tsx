@@ -1,35 +1,36 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { defineMessages } from 'react-intl';
-import { BBButton, BBBTypography } from '@bigbluebutton/bbb-ui-components-react';
-import { colors } from '@bigbluebutton/bbb-ui-components-react/colors';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
 import { hasCurrentUserSeenPickedUser } from '../../../commons/utils';
-import { UserAvatar } from '../user-avatar/component';
+import { PickedUserReel } from '../picked-user-reel/component';
+import { buildReel } from '../picked-user-reel/utils';
+import { PickAgainButton } from '../pick-again-button/component';
 
 const intlMessages = defineMessages({
-  resultSectionLabel: {
-    id: 'pickRandomUserPlugin.modal.pickedUserView.resultSectionLabel',
-    description: 'Section label shown above the picked user result',
-    defaultMessage: 'Result',
-  },
-  backButtonLabel: {
-    id: 'pickRandomUserPlugin.modal.pickedUserView.backButton.label',
-    description: 'Label of back button in picked-user view on the modal',
-    defaultMessage: 'back',
+  closeButtonLabel: {
+    id: 'pickRandomUserPlugin.modal.pickedUserView.closeButton.label',
+    description: 'Label of the button that closes the picked-user modal',
+    defaultMessage: 'Close',
   },
 });
 
 export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
   const {
+    pluginApi,
     intl,
     pickedUserWithEntryId,
     currentUser,
-    handleBack,
-    showBackButton,
+    handleClose,
+    isBot,
+    reelAnimated,
+    reelSpinning,
+    onReelSpinningChange,
     pickedUserSeenEntries,
     pushPickedUserSeen,
+    onReelLanded,
   } = props;
 
   useEffect(() => {
@@ -45,40 +46,39 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
       });
     }
   }, [pickedUserWithEntryId]);
+
+  const reel = useMemo(() => pickedUserWithEntryId && buildReel(
+    pickedUserWithEntryId.pickedUser.reelNames,
+    pickedUserWithEntryId.pickedUser.name,
+  ), [pickedUserWithEntryId]);
+
   return (
     <Styled.PickedUserViewWrapper>
       <Styled.PickedUserViewBody>
-        <span data-test="pickRandomUserPickedUserViewTitle">
-          {/* header for weight (bold, uppercase) with text2's muted color — same
-              treatment as the panel's own subtitles ("Available for selection", ...) */}
-          <BBBTypography as="span" variant="header" style={{ color: colors.text.light }}>
-            {intl.formatMessage(intlMessages.resultSectionLabel)}
-          </BBBTypography>
-        </span>
-        {
-          (pickedUserWithEntryId) ? (
-            <Styled.PickedUserAvatarAndName>
-              <UserAvatar
-                user={pickedUserWithEntryId.pickedUser}
-                size="large"
-              />
-              <span data-test="pickRandomUserPickedUserName">
-                <BBBTypography as="span" variant="selected">
-                  {pickedUserWithEntryId?.pickedUser?.name}
-                </BBBTypography>
-              </span>
-            </Styled.PickedUserAvatarAndName>
-          ) : null
-        }
+        {pickedUserWithEntryId && reel && (
+          <PickedUserReel
+            names={reel.names}
+            targetIndex={reel.targetIndex}
+            spinKey={pickedUserWithEntryId.entryId}
+            onSpinningChange={onReelSpinningChange}
+            onLanded={onReelLanded}
+            animated={reelAnimated}
+          />
+        )}
       </Styled.PickedUserViewBody>
-      {currentUser?.presenter && showBackButton && (
+      {!isBot && (
         <Styled.PickedUserViewFooter>
           <BBButton
-            variant="primary"
-            dataTest="pickRandomUserBackButton"
-            label={intl.formatMessage(intlMessages.backButtonLabel)}
-            onClick={handleBack}
+            variant="subtle"
+            color="default"
+            dataTest="pickRandomUserCloseButton"
+            label={intl.formatMessage(intlMessages.closeButtonLabel)}
+            disabled={reelSpinning}
+            onClick={handleClose}
           />
+          {currentUser?.presenter && (
+            <PickAgainButton {...{ pluginApi, intl, disabled: reelSpinning }} />
+          )}
         </Styled.PickedUserViewFooter>
       )}
     </Styled.PickedUserViewWrapper>

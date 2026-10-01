@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { BbbPluginSdk, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import {
+  useClientAnimationsEnabled,
   useControlModalState,
   useGetAllSettings,
   useGetCurrentPickedUser,
@@ -39,6 +40,8 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
   const { data: botData } = pluginApi
     .useCustomSubscription!<BotDataWrapper>(BOT_SUBSCRIPTION) || {};
   const isBot = botData?.user_current?.[0]?.bot || false;
+
+  const clientAnimationsEnabled = useClientAnimationsEnabled(pluginApi);
 
   const {
     intl,
@@ -77,6 +80,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
       <PickUserModal
         {...{
           uuid,
+          pluginApi,
           pickRandomUserSettings,
           intl,
           showModal,
@@ -86,6 +90,7 @@ function PickRandomUserPlugin({ pluginUuid: uuid }: PickRandomUserPluginProps) {
           pickedUserSeenEntries,
           pushPickedUserSeen,
           isBot,
+          clientAnimationsEnabled,
         }}
       />
       <GenericContentSidekickAreaManager

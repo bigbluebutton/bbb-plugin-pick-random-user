@@ -187,7 +187,7 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     );
   });
 
-  test('should show the "Result" section label to both the picked attendee and the presenter', async (): Promise<void> => {
+  test('should show the "Participant picked!" title to both the picked attendee and the presenter', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openPickRandomUserPanel(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
@@ -196,16 +196,31 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     await attendeePage.hasElement(e.pickRandomUserPickedUserViewTitle, 'attendee modal should open', ELEMENT_WAIT_LONGER_TIME);
     await attendeePage.hasText(
       e.pickRandomUserPickedUserViewTitle,
-      'Result',
-      'picked attendee should see the "Result" section label',
+      'Participant picked!',
+      'picked attendee should see the "Participant picked!" title',
     );
 
     await modPage.hasElement(e.pickRandomUserPickedUserViewTitle, 'presenter should see the picked-user modal', ELEMENT_WAIT_LONGER_TIME);
     await modPage.hasText(
       e.pickRandomUserPickedUserViewTitle,
-      'Result',
-      'presenter should see the "Result" section label',
+      'Participant picked!',
+      'presenter should see the "Participant picked!" title',
     );
+  });
+
+  test('should show the pick again button to the presenter only', async (): Promise<void> => {
+    await waitForAttendeeMeeting(attendeePage);
+    await openPickRandomUserPanel(modPage);
+    await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
+    await modPage.page.click(e.pickRandomUserPickButton);
+
+    await attendeePage.hasElement(e.pickRandomUserCloseButton, 'attendee should see the close button', ELEMENT_WAIT_LONGER_TIME);
+    await test.expect(
+      attendeePage.getLocator(e.pickRandomUserPickAgainButton),
+      'attendee must not be offered to pick again',
+    ).toHaveCount(0);
+
+    await modPage.hasElement(e.pickRandomUserPickAgainButton, 'presenter should see the pick again button', ELEMENT_WAIT_LONGER_TIME);
   });
 
   test('should keep the previously-picked viewer in the available pool and re-pick the same user when "include already picked users" is enabled', async (): Promise<void> => {
