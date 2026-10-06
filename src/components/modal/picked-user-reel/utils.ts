@@ -5,6 +5,9 @@ import { Reel } from './types';
 // at a time, so a larger pool adds nothing on screen but grows every data channel entry.
 export const MAX_REEL_NAMES = 20;
 
+// Built once: localeCompare would set up the same collation on every comparison.
+const nameCollator = new Intl.Collator();
+
 /**
  * Picks the names the reel spins through, to be published along with the pick. Viewers do
  * not subscribe to the user list, so the names have to travel in the data channel entry.
@@ -28,7 +31,7 @@ export const sampleReelNames = (
     [others[i], others[j]] = [others[j], others[i]];
   }
   return [pickedUser, ...others.slice(0, sampleSize)]
-    .sort((a, b) => (a.nameSortable ?? a.name).localeCompare(b.nameSortable ?? b.name))
+    .sort((a, b) => nameCollator.compare(a.nameSortable ?? a.name, b.nameSortable ?? b.name))
     .map((user) => user.name);
 };
 
