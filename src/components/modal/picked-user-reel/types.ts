@@ -9,3 +9,8 @@ export interface PickedUserReelProps {
   // Whether the reel spins before showing the result. Defaults to true.
   animated?: boolean;
 }
+
+export interface Reel {
+  names: string[];
+  targetIndex: number;
+}

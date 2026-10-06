@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
-import { IntlShape, defineMessages } from 'react-intl';
+import { defineMessages } from 'react-intl';
+import { PickAgainButtonProps } from './types';
 import { useFilterOptionsFromDataChannel } from '../hooks';
 import { useGetPickRandomUserFunction, useGetPossibleUsersToBePicked } from '../presenter-view/hooks';
 
@@ -12,12 +12,6 @@ const intlMessages = defineMessages({
     defaultMessage: 'Pick again',
   },
 });
-
-interface PickAgainButtonProps {
-  pluginApi: PluginApi;
-  intl: IntlShape;
-  disabled: boolean;
-}
 
 /**
  * Picks another user, with the filters the presenter set in the panel, without leaving the

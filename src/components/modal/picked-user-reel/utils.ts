@@ -1,13 +1,9 @@
 import { UsersBasicInfoData } from 'bigbluebutton-html-plugin-sdk';
+import { Reel } from './types';
 
 // Upper bound on the names published with each pick. The reel only ever shows five rows
 // at a time, so a larger pool adds nothing on screen but grows every data channel entry.
 export const MAX_REEL_NAMES = 20;
-
-export interface Reel {
-  names: string[];
-  targetIndex: number;
-}
 
 /**
  * Picks the names the reel spins through, to be published along with the pick. Viewers do
