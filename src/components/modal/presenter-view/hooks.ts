@@ -11,6 +11,7 @@ import {
 import { PickedUser, PickedUserSeenEntryDataChannel } from '../../pick-random-user/types';
 import { filterPossibleUsersToBePicked } from './utils';
 import { sampleReelNames } from '../picked-user-reel/utils';
+import { startPickReveal, useRevealedPicks } from '../../../commons/pick-reveal';
 
 export function useGetPickRandomUserFunction(
   pluginApi: PluginApi,
@@ -20,6 +21,7 @@ export function useGetPickRandomUserFunction(
   const { data: currentUser } = currentUserInfo;
 
   const {
+    data: pickedUsers,
     pushEntry: pushPickedUser,
   } = pluginApi.useDataChannel<PickedUser>('pickRandomUser');
 
@@ -36,6 +38,10 @@ export function useGetPickRandomUserFunction(
       deletePickedUserSeenEntries([RESET_DATA_CHANNEL]);
       const randomIndex = Math.floor(Math.random() * possibleUsersToBePicked.length);
       const randomlyPickedUser = possibleUsersToBePicked[randomIndex];
+      startPickReveal(
+        randomlyPickedUser.userId,
+        (pickedUsers?.data ?? []).map((entry) => entry.entryId),
+      );
       pushPickedUser({
         ...randomlyPickedUser,
         reelNames: sampleReelNames(possibleUsersToBePicked, randomlyPickedUser),
@@ -87,7 +93,9 @@ export function useGetPossibleUsersToBePicked(
   const {
     data: pickedUserFromDataChannelResponse,
   } = pluginApi.useDataChannel<PickedUser>('pickRandomUser');
-  const pickedUserFromDataChannel = pickedUserFromDataChannelResponse?.data || [];
+  // A pick still spinning on the presenter's reel keeps its user available here, or the
+  // available list would tell who was picked before the reel does.
+  const pickedUserFromDataChannel = useRevealedPicks(pickedUserFromDataChannelResponse?.data) || [];
 
   const result = filterPossibleUsersToBePicked(
     allUsers,

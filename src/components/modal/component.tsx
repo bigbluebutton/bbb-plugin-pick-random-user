@@ -9,6 +9,7 @@ import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
 import { usePreventCloseModalCountdown } from './hooks';
 import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
+import { finishPickReveal } from '../../commons/pick-reveal';
 import { MIN_PREVENT_CLOSE_DELAY_FOR_TOAST_SECONDS } from '../../commons/constants';
 
 // Time a bot user is given to look at the picked user before the modal closes itself.
@@ -152,6 +153,8 @@ export function PickUserModal(props: PickUserModalProps) {
   // the browser notification do not give the result away while it spins. The reel stops
   // on time in a background tab too (see useReelSpin), so a user elsewhere still gets them.
   const handleReelLanded = () => {
+    // The presenter's panel may now list the pick too (see commons/pick-reveal).
+    finishPickReveal();
     const isCurrentUserPicked = !!currentUser?.userId
       && currentPickedUser?.pickedUser?.userId === currentUser.userId;
     if (isBot || !isCurrentUserPicked) return;

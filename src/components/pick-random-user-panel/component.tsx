@@ -7,6 +7,7 @@ import { useGetPossibleUsersToBePicked } from '../modal/presenter-view/hooks';
 import { useGetFilterOptions } from '../modal/hooks';
 import { useGetCurrentPickedUser } from '../pick-random-user/hooks';
 import { PickedUser } from '../pick-random-user/types';
+import { useRevealedPicks } from '../../commons/pick-reveal';
 
 /**
  * Gathers everything `PresenterViewComponent` needs. On v0.0.x those props come from the
@@ -31,7 +32,8 @@ function PickRandomUserPanelContent(props: PickRandomUserPanelContentProps) {
     data: pickedUserFromDataChannelResponse,
     deleteEntry: deletePickedUser,
   } = pluginApi.useDataChannel<PickedUser>('pickRandomUser');
-  const dataChannelPickedUsers = pickedUserFromDataChannelResponse?.data;
+  // The pick still spinning on the presenter's reel stays out of the panel until it stops.
+  const dataChannelPickedUsers = useRevealedPicks(pickedUserFromDataChannelResponse?.data);
 
   const pickedUserWithEntryId = useGetCurrentPickedUser(dataChannelPickedUsers);
 
