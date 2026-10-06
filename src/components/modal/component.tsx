@@ -10,6 +10,7 @@ import { PickedUserViewComponent } from './picked-user-view/component';
 import { usePreventCloseModalCountdown } from './hooks';
 import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
 import { finishPickReveal } from '../../commons/pick-reveal';
+import { useClientAnimationsEnabled } from '../pick-random-user/hooks';
 import { MIN_PREVENT_CLOSE_DELAY_FOR_TOAST_SECONDS } from '../../commons/constants';
 
 // Time a bot user is given to look at the picked user before the modal closes itself.
@@ -100,7 +101,6 @@ export function PickUserModal(props: PickUserModalProps) {
     isBot,
     uuid,
     pluginApi,
-    clientAnimationsEnabled = true,
   } = props;
 
   const modalAnchor = useRef(document.getElementById(uuid));
@@ -147,6 +147,9 @@ export function PickUserModal(props: PickUserModalProps) {
   } = pickRandomUserSettings;
 
   // The reel spins unless the plugin setting or the user's own Animations choice turns it off.
+  // Read here rather than at the plugin root: this modal stays mounted for the plugin's whole
+  // lifetime, so the subscription is warm before any pick, and the root does not re-render.
+  const clientAnimationsEnabled = useClientAnimationsEnabled(pluginApi);
   const reelAnimated = reelAnimationEnabled && clientAnimationsEnabled;
 
   // The picked user is told only once the reel stops on their name, so the ping sound and

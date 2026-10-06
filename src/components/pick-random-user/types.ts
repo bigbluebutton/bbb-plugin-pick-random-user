@@ -34,15 +34,11 @@ export interface BotDataWrapper {
   user_current: BotData[];
 }
 
-// Only the part of the client's settings this plugin reads.
-export interface UserClientSettingsWrapper {
+// The one client setting this plugin reads (see ANIMATIONS_SETTING_SUBSCRIPTION).
+export interface AnimationsSettingWrapper {
   user_current: {
     userClientSettings: {
-      userClientSettingsJson: {
-        application?: {
-          animations?: boolean;
-        };
-      } | null;
+      animations: boolean | null;
     } | null;
   }[];
 }

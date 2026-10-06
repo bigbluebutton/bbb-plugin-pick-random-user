@@ -55,9 +55,16 @@ export const renderModal = ({
   clientAnimationsEnabled = true,
 } = {}) => {
   const handleCloseModal = vi.fn();
+  // The modal reads the user's Animations setting through a custom subscription.
+  const pluginApi = {
+    useCustomSubscription: () => ({
+      data: { user_current: [{ userClientSettings: { animations: clientAnimationsEnabled } }] },
+      loading: false,
+    }),
+  } as never;
   const props = {
     uuid: 'plugin-anchor',
-    pluginApi: {} as never,
+    pluginApi,
     pickRandomUserSettings,
     intl,
     handleCloseModal,
@@ -65,7 +72,6 @@ export const renderModal = ({
     pickedUserSeenEntries: { data: [], loading: false } as never,
     pushPickedUserSeen: vi.fn(),
     isBot,
-    clientAnimationsEnabled,
   };
   // As in the plugin, the modal is mounted before anything is picked and opens when a pick
   // comes in through the data channel.

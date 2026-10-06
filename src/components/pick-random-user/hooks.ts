@@ -19,9 +19,9 @@ import {
   PickedUser,
   PickedUserSeenEntryDataChannel,
   PickedUserWithEntryId,
-  UserClientSettingsWrapper,
+  AnimationsSettingWrapper,
 } from './types';
-import { USER_CLIENT_SETTINGS_SUBSCRIPTION } from './queries';
+import { ANIMATIONS_SETTING_SUBSCRIPTION } from './queries';
 
 declare const window: WindowClientSettings;
 
@@ -160,9 +160,8 @@ export const useGetAllSettings = (
  */
 export const useClientAnimationsEnabled = (pluginApi: PluginApi): boolean => {
   const { data } = pluginApi
-    .useCustomSubscription!<UserClientSettingsWrapper>(USER_CLIENT_SETTINGS_SUBSCRIPTION) || {};
-  const settings = data?.user_current?.[0]?.userClientSettings?.userClientSettingsJson;
-  return settings?.application?.animations !== false;
+    .useCustomSubscription!<AnimationsSettingWrapper>(ANIMATIONS_SETTING_SUBSCRIPTION) || {};
+  return data?.user_current?.[0]?.userClientSettings?.animations !== false;
 };
 
 // ---

@@ -62,6 +62,8 @@ function renderModal({ isBot = false, preventCloseDelaySeconds = 30 } = {}) {
         pickedUserSeenEntries: { loading: false, data: [], error: undefined } as never,
         pushPickedUserSeen: vi.fn(),
         isBot,
+        // Read by the modal for the user's Animations setting; not loaded yet here.
+        pluginApi: { useCustomSubscription: () => ({ loading: true }) } as never,
       }}
     />,
   );
