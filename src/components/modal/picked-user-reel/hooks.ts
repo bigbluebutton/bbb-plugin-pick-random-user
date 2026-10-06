@@ -6,6 +6,18 @@ export const MIN_SPIN_ROWS = 40;
 
 const prefersReducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
+export interface ReelSpinOptions {
+  // Whether to spin at all; when false the result shows right away, as it does for a single
+  // name or when the user prefers reduced motion. Defaults to true.
+  animated?: boolean;
+  // Called once per pick when the reel stops on the result (right away when it does not
+  // spin at all).
+  onLanded?: () => void;
+  // Called as the reel starts and stops spinning, in the same commit, so whoever locks
+  // things while it spins never lags a painted frame behind it.
+  onSpinningChange?: (spinning: boolean) => void;
+}
+
 /**
  * Spins the reel to `targetIndex` every time `spinKey` changes, easing out so it slows down
  * before stopping on the picked name. A new spin starts from wherever the reel is, so a
@@ -17,33 +29,36 @@ const prefersReducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motio
  * @param length number of names on the reel
  * @param targetIndex index of the picked name
  * @param spinKey identifies the pick; a new value starts a new spin
- * @param onLanded called once per pick when the reel stops on the result (right away when
- * it does not spin at all)
- * @param animated whether to spin at all; when false the result shows right away, as it
- * does for a single name or when the user prefers reduced motion
+ * @param options see ReelSpinOptions
  * @returns the reel position (fractional while spinning) and whether it is spinning
  */
 export const useReelSpin = (
   length: number,
   targetIndex: number,
   spinKey: string,
-  onLanded?: () => void,
-  animated = true,
+  { animated = true, onLanded, onSpinningChange }: ReelSpinOptions = {},
 ) => {
   const [spin, setSpin] = useState({ position: targetIndex, spinning: false });
   const positionRef = useRef<number | null>(null);
-  // The spin outlives the render that started it, so it calls whatever callback is current
-  // when it stops rather than the one it was started with.
-  const onLandedRef = useRef(onLanded);
-  onLandedRef.current = onLanded;
+  // The spin outlives the render that started it, so it calls whatever callbacks are current
+  // when it stops rather than the ones it was started with. They are refreshed in a layout
+  // effect, declared before the spin's, rather than during render: a render React throws
+  // away must not leave its callbacks behind.
+  const callbacks = useRef({ onLanded, onSpinningChange });
+  useLayoutEffect(() => {
+    callbacks.current = { onLanded, onSpinningChange };
+  });
 
   // A layout effect, so the first spin frame replaces the initial state before it is ever
   // painted and the result does not flash on screen before the reel starts turning.
   useLayoutEffect(() => {
+    let spinning = false;
     const land = () => {
       positionRef.current = targetIndex;
       setSpin({ position: targetIndex, spinning: false });
-      onLandedRef.current?.();
+      if (spinning) callbacks.current.onSpinningChange?.(false);
+      spinning = false;
+      callbacks.current.onLanded?.();
     };
 
     if (!animated || length < 2 || prefersReducedMotion()) {
@@ -73,10 +88,14 @@ export const useReelSpin = (
 
     positionRef.current = start;
     setSpin({ position: start, spinning: true });
+    spinning = true;
+    callbacks.current.onSpinningChange?.(true);
     frame = requestAnimationFrame(step);
     return () => {
       clearTimeout(landing);
       cancelAnimationFrame(frame);
+      // Cut short (a new pick, or the reel going away): it will not report stopping itself.
+      if (spinning) callbacks.current.onSpinningChange?.(false);
     };
   }, [spinKey]);
 

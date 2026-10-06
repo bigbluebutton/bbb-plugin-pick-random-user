@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import * as Styled from './styles';
 import { PickedUserReelProps } from './types';
 import { useReelSpin } from './hooks';
@@ -23,20 +22,11 @@ export function PickedUserReel(props: PickedUserReelProps) {
     animated = true,
   } = props;
 
-  const { position, spinning } = useReelSpin(
-    names.length,
-    targetIndex,
-    spinKey,
-    onLanded,
+  const { position, spinning } = useReelSpin(names.length, targetIndex, spinKey, {
     animated,
-  );
-
-  useEffect(() => {
-    onSpinningChange?.(spinning);
-  }, [spinning]);
-
-  // Unmounted mid-spin (the pick was cleared), the reel will never report that it stopped.
-  useEffect(() => () => onSpinningChange?.(false), []);
+    onLanded,
+    onSpinningChange,
+  });
 
   const centerRow = Math.round(position);
   // A reel holding a single name never spins, and repeating that name around it would

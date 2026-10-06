@@ -51,7 +51,7 @@ describe('useReelSpin', () => {
 
   it('does not spin when the animation is turned off', () => {
     const onLanded = vi.fn();
-    const { result } = renderHook(() => useReelSpin(NAMES.length, 2, 'entry-1', onLanded, false));
+    const { result } = renderHook(() => useReelSpin(NAMES.length, 2, 'entry-1', { onLanded, animated: false }));
 
     expect(result.current).toEqual({ position: 2, spinning: false });
     expect(onLanded).toHaveBeenCalledTimes(1);
@@ -92,7 +92,7 @@ describe('useReelSpin', () => {
   it('stops on time in a background tab, where no frame is drawn', () => {
     stopAnimationFrames();
     const onLanded = vi.fn();
-    const { result } = renderHook(() => useReelSpin(NAMES.length, 3, 'entry-1', onLanded));
+    const { result } = renderHook(() => useReelSpin(NAMES.length, 3, 'entry-1', { onLanded }));
 
     act(() => {
       vi.advanceTimersByTime(SPIN_DURATION_MS - 100);
@@ -108,10 +108,41 @@ describe('useReelSpin', () => {
     expect(onLanded).toHaveBeenCalledTimes(1);
   });
 
+  describe('onSpinningChange', () => {
+    it('reports the spin starting and stopping', () => {
+      const onSpinningChange = vi.fn();
+      renderHook(() => useReelSpin(NAMES.length, 4, 'entry-1', { onSpinningChange }));
+
+      expect(onSpinningChange.mock.calls).toEqual([[true]]);
+
+      finishSpin();
+
+      expect(onSpinningChange.mock.calls).toEqual([[true], [false]]);
+    });
+
+    it('reports nothing when there is nothing to spin', () => {
+      const onSpinningChange = vi.fn();
+      renderHook(() => useReelSpin(1, 0, 'entry-1', { onSpinningChange }));
+
+      expect(onSpinningChange).not.toHaveBeenCalled();
+    });
+
+    it('reports the spin stopping when the reel goes away mid-spin', () => {
+      const onSpinningChange = vi.fn();
+      const { unmount } = renderHook(
+        () => useReelSpin(NAMES.length, 4, 'entry-1', { onSpinningChange }),
+      );
+
+      unmount();
+
+      expect(onSpinningChange).toHaveBeenLastCalledWith(false);
+    });
+  });
+
   describe('onLanded', () => {
     it('is called once, when the spin ends', () => {
       const onLanded = vi.fn();
-      renderHook(() => useReelSpin(NAMES.length, 4, 'entry-1', onLanded));
+      renderHook(() => useReelSpin(NAMES.length, 4, 'entry-1', { onLanded }));
 
       act(() => {
         vi.advanceTimersByTime(SPIN_DURATION_MS - 200);
@@ -126,14 +157,14 @@ describe('useReelSpin', () => {
 
     it('is called right away when there is nothing to spin', () => {
       const onLanded = vi.fn();
-      renderHook(() => useReelSpin(1, 0, 'entry-1', onLanded));
+      renderHook(() => useReelSpin(1, 0, 'entry-1', { onLanded }));
 
       expect(onLanded).toHaveBeenCalledTimes(1);
     });
 
     it('is not called for a spin cut short by unmounting', () => {
       const onLanded = vi.fn();
-      const { unmount } = renderHook(() => useReelSpin(NAMES.length, 4, 'entry-1', onLanded));
+      const { unmount } = renderHook(() => useReelSpin(NAMES.length, 4, 'entry-1', { onLanded }));
 
       unmount();
       finishSpin();
@@ -144,7 +175,7 @@ describe('useReelSpin', () => {
     it('is called only for the last pick when a new one arrives mid-spin', () => {
       const onLanded = vi.fn();
       const { rerender } = renderHook(
-        ({ target, key }) => useReelSpin(NAMES.length, target, key, onLanded),
+        ({ target, key }) => useReelSpin(NAMES.length, target, key, { onLanded }),
         { initialProps: { target: 4, key: 'entry-1' } },
       );
       act(() => {
@@ -161,7 +192,7 @@ describe('useReelSpin', () => {
       const first = vi.fn();
       const latest = vi.fn();
       const { rerender } = renderHook(
-        ({ onLanded }) => useReelSpin(NAMES.length, 4, 'entry-1', onLanded),
+        ({ onLanded }) => useReelSpin(NAMES.length, 4, 'entry-1', { onLanded }),
         { initialProps: { onLanded: first } },
       );
 
