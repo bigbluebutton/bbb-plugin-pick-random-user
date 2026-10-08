@@ -311,7 +311,6 @@ export function PickUserModal(props: PickUserModalProps) {
       {reelEnabled ? (
         <PickedUserViewComponent
           {...{
-            pluginApi,
             pickedUserSeenEntries,
             pushPickedUserSeen,
             pickedUserWithEntryId: currentPickedUser,

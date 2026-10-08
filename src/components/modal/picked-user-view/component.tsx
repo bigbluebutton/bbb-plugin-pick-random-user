@@ -6,7 +6,6 @@ import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
 import { PickedUserReel } from '../picked-user-reel/component';
 import { buildReel } from '../picked-user-reel/utils';
-import { PickAgainButton } from '../pick-again-button/component';
 import { useMarkPickedUserSeen } from '../hooks';
 
 const intlMessages = defineMessages({
@@ -19,7 +18,6 @@ const intlMessages = defineMessages({
 
 export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
   const {
-    pluginApi,
     intl,
     pickedUserWithEntryId,
     currentUser,
@@ -69,9 +67,6 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
             disabled={reelSpinning}
             onClick={handleClose}
           />
-          {currentUser?.presenter && (
-            <PickAgainButton {...{ pluginApi, intl, disabled: reelSpinning }} />
-          )}
         </Styled.PickedUserViewFooter>
       )}
     </Styled.PickedUserViewWrapper>

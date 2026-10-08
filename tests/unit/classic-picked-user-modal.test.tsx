@@ -69,6 +69,5 @@ describe('picked-user modal with the reel turned off', () => {
 
     expect(query('pickRandomUserBackButton')).not.toBeNull();
     expect(query('pickRandomUserCloseButton')).toBeNull();
-    expect(query('pickRandomUserPickAgainButton')).toBeNull();
   });
 });

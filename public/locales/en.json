@@ -6,7 +6,6 @@
   "pickRandomUserPlugin.modal.pickedUserView.avatarImage.alternativeText": "Avatar image of user {0}",
   "pickRandomUserPlugin.modal.pickedUserView.title.participantPicked": "Participant picked!",
   "pickRandomUserPlugin.modal.pickedUserView.closeButton.label": "Close",
-  "pickRandomUserPlugin.modal.pickedUserView.pickAgainButton.label": "Pick again",
   "pickRandomUserPlugin.modal.presenterView.optionSection.title": "Options",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel": "Include moderators",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel": "Include presenter",

@@ -99,7 +99,6 @@ describe('useGetPossibleUsersToBePicked (unstable connection)', () => {
 });
 
 describe('useGetPossibleUsersToBePicked (re-renders)', () => {
-  // The picked-user modal re-renders its pick-again button on every countdown tick.
   it('keeps the same pool, and logs it once, when re-rendered with the same inputs', () => {
     const api = makePluginApi(loadedWrapper([mod('m1'), mod('m2')]));
     const filterOptions = filters();

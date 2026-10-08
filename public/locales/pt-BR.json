@@ -6,7 +6,6 @@
   "pickRandomUserPlugin.modal.pickedUserView.avatarImage.alternativeText": "Iamgem avatar do usuário {0}",
   "pickRandomUserPlugin.modal.pickedUserView.title.participantPicked": "Participante sorteado!",
   "pickRandomUserPlugin.modal.pickedUserView.closeButton.label": "Fechar",
-  "pickRandomUserPlugin.modal.pickedUserView.pickAgainButton.label": "Sortear de novo",
   "pickRandomUserPlugin.modal.presenterView.optionSection.title": "Opções",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includeModeratorsLabel": "Incluir moderadores",
   "pickRandomUserPlugin.modal.presenterView.optionSection.includePresenterLabel": "Incluir apresentador",
