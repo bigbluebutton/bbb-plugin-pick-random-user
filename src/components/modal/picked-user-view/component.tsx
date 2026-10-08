@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { defineMessages } from 'react-intl';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
-import { hasCurrentUserSeenPickedUser } from '../../../commons/utils';
 import { PickedUserReel } from '../picked-user-reel/component';
 import { buildReel } from '../picked-user-reel/utils';
 import { PickAgainButton } from '../pick-again-button/component';
+import { useMarkPickedUserSeen } from '../hooks';
 
 const intlMessages = defineMessages({
   closeButtonLabel: {
@@ -33,19 +33,12 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
     onReelLanded,
   } = props;
 
-  useEffect(() => {
-    const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
-      pickedUserSeenEntries,
-      currentUser?.userId,
-      pickedUserWithEntryId?.pickedUser?.userId,
-    );
-    if (pickedUserWithEntryId && !hasCurrentUserSeen) {
-      pushPickedUserSeen({
-        pickedUserId: pickedUserWithEntryId?.pickedUser.userId,
-        seenByUserId: currentUser.userId,
-      });
-    }
-  }, [pickedUserWithEntryId]);
+  useMarkPickedUserSeen(
+    pickedUserWithEntryId,
+    currentUser,
+    pickedUserSeenEntries,
+    pushPickedUserSeen,
+  );
 
   const reel = useMemo(() => pickedUserWithEntryId && buildReel(
     pickedUserWithEntryId.pickedUser.reelNames,

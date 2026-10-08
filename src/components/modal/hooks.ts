@@ -19,6 +19,36 @@ import {
 const UPDATE_COUNTDOWN_RATE = 100; // milliseconds
 const COUNTDOWN_RATE_IN_SECONDS = UPDATE_COUNTDOWN_RATE / 1000;
 
+/**
+ * Records that the current user has seen the pick on screen, so the modal does not open
+ * for them again for that pick. Shared by the reel and the classic picked-user views.
+ * @param pickedUserWithEntryId the pick on screen
+ * @param currentUser user this plugin instance runs for
+ * @param pickedUserSeenEntries the "seen" data channel entries
+ * @param pushPickedUserSeen pushes a "seen" entry
+ */
+export const useMarkPickedUserSeen = (
+  pickedUserWithEntryId: PickedUserWithEntryId | null,
+  currentUser: CurrentUserData,
+  pickedUserSeenEntries: GraphqlResponseWrapper<
+    DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
+  pushPickedUserSeen: PushEntryFunction<PickedUserSeenEntryDataChannel>,
+) => {
+  useEffect(() => {
+    const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
+      pickedUserSeenEntries,
+      currentUser?.userId,
+      pickedUserWithEntryId?.pickedUser?.userId,
+    );
+    if (pickedUserWithEntryId && !hasCurrentUserSeen) {
+      pushPickedUserSeen({
+        pickedUserId: pickedUserWithEntryId?.pickedUser.userId,
+        seenByUserId: currentUser.userId,
+      });
+    }
+  }, [pickedUserWithEntryId]);
+};
+
 export const usePreventCloseModalCountdown = (
   currentUser: CurrentUserData,
   pickedUserSeenEntries: GraphqlResponseWrapper<

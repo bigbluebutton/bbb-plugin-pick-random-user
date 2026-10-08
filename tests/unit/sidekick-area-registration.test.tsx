@@ -34,6 +34,7 @@ const settings = () => ({
   pickedUserTimeWindow: 30,
   preventCloseDelaySeconds: 0,
   modalUiScale: 1,
+  reelEnabled: true,
   reelAnimationEnabled: true,
 });
 

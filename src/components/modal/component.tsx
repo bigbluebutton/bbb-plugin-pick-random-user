@@ -7,6 +7,7 @@ import { colors } from '@bigbluebutton/bbb-ui-components-react/colors';
 import * as Styled from './styles';
 import { PickUserModalProps } from './types';
 import { PickedUserViewComponent } from './picked-user-view/component';
+import { ClassicPickedUserView } from './classic-picked-user-view/component';
 import { usePreventCloseModalCountdown } from './hooks';
 import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
 import { finishPickReveal } from '../../commons/pick-reveal';
@@ -40,6 +41,11 @@ const intlMessages = defineMessages({
     id: 'pickRandomUserPlugin.modal.pickedUserView.title.participantPicked',
     description: 'Title of the picked-user modal',
     defaultMessage: 'Participant picked!',
+  },
+  classicModalTitle: {
+    id: 'pickRandomUserPlugin.modal.title',
+    description: 'Title of the picked-user modal when the reel is turned off',
+    defaultMessage: 'Pick random user',
   },
   closeButtonAriaLabel: {
     id: 'pickRandomUserPlugin.modal.closeButton.ariaLabel',
@@ -143,6 +149,7 @@ export function PickUserModal(props: PickUserModalProps) {
     pingSoundEnabled,
     pingSoundUrl,
     browserNotificationEnabled,
+    reelEnabled,
     reelAnimationEnabled,
   } = pickRandomUserSettings;
 
@@ -151,11 +158,16 @@ export function PickUserModal(props: PickUserModalProps) {
   // lifetime, so the subscription is warm before any pick, and the root does not re-render.
   const clientAnimationsEnabled = useClientAnimationsEnabled(pluginApi);
   const reelAnimated = reelAnimationEnabled && clientAnimationsEnabled;
+  // With the reel off, the modal is the one from before the reel, title included.
+  const modalTitle = intl.formatMessage(
+    reelEnabled ? intlMessages.modalTitle : intlMessages.classicModalTitle,
+  );
 
-  // The picked user is told only once the reel stops on their name, so the ping sound and
-  // the browser notification do not give the result away while it spins. The reel stops
-  // on time in a background tab too (see useReelSpin), so a user elsewhere still gets them.
-  const handleReelLanded = () => {
+  // The picked user is told only once the pick is revealed: when the reel stops on their
+  // name, so the ping sound and the browser notification do not give the result away while
+  // it spins, or as soon as it is on screen in the classic view. The reel stops on time in a
+  // background tab too (see useReelSpin), so a user elsewhere still gets them.
+  const handlePickRevealed = () => {
     // The presenter's panel may now list the pick too (see commons/pick-reveal).
     finishPickReveal();
     const isCurrentUserPicked = !!currentUser?.userId
@@ -295,26 +307,41 @@ export function PickUserModal(props: PickUserModalProps) {
       $modalUiScale={pickRandomUserSettings.modalUiScale}
       $hideCloseButton={isBot}
       $lockCloseButton={reelSpinning}
-      title={intl.formatMessage(intlMessages.modalTitle)}
+      title={modalTitle}
       testId={MODAL_TEST_ID}
       noFooter
     >
-      <PickedUserViewComponent
-        {...{
-          pluginApi,
-          pickedUserSeenEntries,
-          pushPickedUserSeen,
-          pickedUserWithEntryId: currentPickedUser,
-          intl,
-          currentUser,
-          handleClose: handleCloseModal,
-          isBot,
-          reelAnimated,
-          reelSpinning,
-          onReelSpinningChange: setReelSpinning,
-          onReelLanded: handleReelLanded,
-        }}
-      />
+      {reelEnabled ? (
+        <PickedUserViewComponent
+          {...{
+            pluginApi,
+            pickedUserSeenEntries,
+            pushPickedUserSeen,
+            pickedUserWithEntryId: currentPickedUser,
+            intl,
+            currentUser,
+            handleClose: handleCloseModal,
+            isBot,
+            reelAnimated,
+            reelSpinning,
+            onReelSpinningChange: setReelSpinning,
+            onReelLanded: handlePickRevealed,
+          }}
+        />
+      ) : (
+        <ClassicPickedUserView
+          {...{
+            intl,
+            pickedUserWithEntryId: currentPickedUser,
+            currentUser,
+            handleBack: handleCloseModal,
+            showBackButton: !isBot,
+            pickedUserSeenEntries,
+            pushPickedUserSeen,
+            onPickShown: handlePickRevealed,
+          }}
+        />
+      )}
       {isBot && (
         <Styled.ProgressBarContainer>
           <Styled.ProgressBarFill $progress={botProgress} />

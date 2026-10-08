@@ -20,6 +20,7 @@ export const settings = (overrides = {}) => ({
   pickedUserTimeWindow: 10,
   preventCloseDelaySeconds: 0,
   modalUiScale: 1,
+  reelEnabled: true,
   reelAnimationEnabled: true,
   ...overrides,
 });
@@ -53,6 +54,7 @@ export const renderModal = ({
   isBot = false,
   pickRandomUserSettings = settings(),
   clientAnimationsEnabled = true,
+  presenter = false,
 } = {}) => {
   const handleCloseModal = vi.fn();
   // The modal reads the user's Animations setting through a custom subscription.
@@ -68,7 +70,7 @@ export const renderModal = ({
     pickRandomUserSettings,
     intl,
     handleCloseModal,
-    currentUser: { userId: `id-${currentUserName}`, presenter: false } as never,
+    currentUser: { userId: `id-${currentUserName}`, presenter } as never,
     pickedUserSeenEntries: { data: [], loading: false } as never,
     pushPickedUserSeen: vi.fn(),
     isBot,
