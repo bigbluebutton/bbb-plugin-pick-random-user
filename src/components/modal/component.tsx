@@ -10,7 +10,6 @@ import { PickedUserViewComponent } from './picked-user-view/component';
 import { ClassicPickedUserView } from './classic-picked-user-view/component';
 import { usePreventCloseModalCountdown } from './hooks';
 import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
-import { finishPickReveal } from '../../commons/pick-reveal';
 import { useClientAnimationsEnabled } from '../pick-random-user/hooks';
 import { MIN_PREVENT_CLOSE_DELAY_FOR_TOAST_SECONDS } from '../../commons/constants';
 
@@ -168,8 +167,6 @@ export function PickUserModal(props: PickUserModalProps) {
   // it spins, or as soon as it is on screen in the classic view. The reel stops on time in a
   // background tab too (see useReelSpin), so a user elsewhere still gets them.
   const handlePickRevealed = () => {
-    // The presenter's panel may now list the pick too (see commons/pick-reveal).
-    finishPickReveal();
     const isCurrentUserPicked = !!currentUser?.userId
       && currentPickedUser?.pickedUser?.userId === currentUser.userId;
     if (isBot || !isCurrentUserPicked) return;

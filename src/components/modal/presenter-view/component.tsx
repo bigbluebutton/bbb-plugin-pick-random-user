@@ -10,7 +10,7 @@ import * as Styled from './styles';
 import { PickedUser } from '../../pick-random-user/types';
 import { PresenterViewComponentProps } from './types';
 import { UserAvatar } from '../user-avatar/component';
-import { useGetPickRandomUserFunction } from './hooks';
+import { useGetPickRandomUserFunction, useHeldValue, useNewestPickSpinning } from './hooks';
 import { formatPickedTime } from './utils';
 
 // Caps the scroll area to the height ListCard's flex:1 actually resolves to
@@ -147,6 +147,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
     setFilterOptions,
     usersToBePicked,
     isLoading,
+    reelAnimated,
   } = props;
 
   const {
@@ -157,7 +158,15 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
 
   const handlePickRandomUser = useGetPickRandomUserFunction(pluginApi, usersToBePicked);
 
-  const usersCount = usersToBePicked?.length ?? 0;
+  // The panel shows through the modal's overlay. While the presenter's reel still spins
+  // towards a new pick, its lists stay as they were before the pick, or they would give
+  // the result away first: the picked user would leave "available" and top "previously
+  // picked". Only what is shown waits; picking uses the current data.
+  const newestPickSpinning = useNewestPickSpinning(dataChannelPickedUsers, reelAnimated);
+  const shownUsers = useHeldValue(usersToBePicked, newestPickSpinning);
+  const shownPickedUsers = useHeldValue(dataChannelPickedUsers, newestPickSpinning);
+
+  const usersCount = shownUsers?.length ?? 0;
   const userRoleLabel = (() => {
     if (!includeModerators) {
       return usersCount !== 1
@@ -169,7 +178,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
       : intl.formatMessage(intlMessages.userLabel, { 0: usersCount });
   })();
 
-  const hasPickedUsers = dataChannelPickedUsers?.some((u) => !!u.payloadJson);
+  const hasPickedUsers = shownPickedUsers?.some((u) => !!u.payloadJson);
 
   return (
     <Styled.PresenterViewWrapper>
@@ -249,7 +258,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
             <Styled.ListCard>
               <BBBScrollArea maxHeight={LIST_MAX_HEIGHT} fadeEdges={false}>
                 <Styled.UserList>
-                  {usersToBePicked?.map((user) => {
+                  {shownUsers?.map((user) => {
                     let roleBadgeLabel: string | null = null;
                     if (user.role === 'MODERATOR') {
                       roleBadgeLabel = intl.formatMessage(intlMessages.moderatorRoleLabel);
@@ -296,7 +305,7 @@ export function PresenterViewComponent(props: PresenterViewComponentProps) {
             <Styled.ListCard>
               <BBBScrollArea maxHeight={LIST_MAX_HEIGHT} fadeEdges={false}>
                 <Styled.UserList data-test="pickRandomUserPreviouslyPickedList">
-                  {makePickedUserRows(dataChannelPickedUsers)}
+                  {makePickedUserRows(shownPickedUsers)}
                 </Styled.UserList>
               </BBBScrollArea>
             </Styled.ListCard>

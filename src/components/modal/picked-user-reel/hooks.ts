@@ -6,6 +6,15 @@ export const MIN_SPIN_ROWS = 40;
 
 const prefersReducedMotion = () => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
+/**
+ * Whether a reel spins before showing the pick, rather than showing it right away.
+ * @param length number of names on the reel; a single name has nothing to spin through
+ * @param animated whether the settings and the user's Animations choice allow it
+ * @returns false also when the user's system asks for reduced motion
+ */
+export const reelSpins = (length: number, animated: boolean) => animated && length > 1
+  && !prefersReducedMotion();
+
 export interface ReelSpinOptions {
   // Whether to spin at all; when false the result shows right away, as it does for a single
   // name or when the user prefers reduced motion. Defaults to true.
@@ -61,7 +70,7 @@ export const useReelSpin = (
       callbacks.current.onLanded?.();
     };
 
-    if (!animated || length < 2 || prefersReducedMotion()) {
+    if (!reelSpins(length, animated)) {
       land();
       return undefined;
     }

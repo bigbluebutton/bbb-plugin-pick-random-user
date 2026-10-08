@@ -1,12 +1,11 @@
 import {
   describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest';
-import { fireEvent, renderHook } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import {
   notifyRandomlyPickedUser,
   pingSoundForRandomlyPickedUser,
 } from '../../src/components/modal/utils';
-import { finishPickReveal, startPickReveal, useRevealedPicks } from '../../src/commons/pick-reveal';
 import {
   NAMES, pick, prepareModalContainers, renderModal, settings,
 } from './helpers/pick-user-modal';
@@ -37,7 +36,6 @@ describe('picked-user modal with the reel turned off', () => {
   });
 
   afterEach(() => {
-    finishPickReveal();
     vi.useRealTimers();
   });
 
@@ -72,16 +70,5 @@ describe('picked-user modal with the reel turned off', () => {
     expect(query('pickRandomUserBackButton')).not.toBeNull();
     expect(query('pickRandomUserCloseButton')).toBeNull();
     expect(query('pickRandomUserPickAgainButton')).toBeNull();
-  });
-
-  it('lets the presenter\'s panel list the pick right away', () => {
-    startPickReveal('id-Eduarda', []);
-    classic({ currentPickedUser: pick('Eduarda', 'entry-1', NAMES) });
-
-    const { result } = renderHook(() => useRevealedPicks([
-      { entryId: 'entry-1', payloadJson: { userId: 'id-Eduarda' } },
-    ] as never));
-
-    expect(result.current).toHaveLength(1);
   });
 });
