@@ -63,6 +63,25 @@ public:
 
 The multiplier applies to: font sizes, padding, margins, gaps, and list max-heights throughout the picked-user modal and the presenter's sidekick panel.
 
+### Reel
+
+By default, the picked-user modal spins a reel of names (a sample of the users who could have been picked) and stops on the picked user. Everyone in the meeting sees the same reel. Two settings control it:
+- `reelEnabled`: set it to `false` to turn the reel off. The modal is then the one from before the reel: the picked user's avatar and name, shown right away.
+- `reelAnimationEnabled`: set it to `false` to keep the reel but not spin it: the reel shows the picked user right away.
+
+Even with both on, the reel does not spin for users who turned Animations off in the client's Settings, or whose system asks for reduced motion.
+
+To turn the reel off, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
+
+```yaml
+public:
+  # ...
+  plugins:
+    - name: BbbPluginPickRandomUser
+      settings:
+        reelEnabled: false
+```
+
 ### Prevent Close Delay
 
 By default, when the modal appears showing the picked user (the view where a reel of names spins and stops on the selected user), it cannot be closed for 3 seconds. This prevents accidental closures from misclicks. During this time:
