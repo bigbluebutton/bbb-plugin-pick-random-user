@@ -69,7 +69,7 @@ export async function closePickedUserModal(modPage: Page): Promise<void> {
   await modPage.hasElement(e.pickRandomUserCloseButton, 'close button should be visible');
   await modPage.page.click(e.pickRandomUserCloseButton);
   await modPage.wasRemoved(
-    e.pickRandomUserPickedUserViewTitle,
+    e.pickRandomUserModal,
     'picked-user modal should close after clicking close',
     ELEMENT_WAIT_TIME,
   );
@@ -86,7 +86,7 @@ export async function moderatorCleanupAfterTest(modPage: Page): Promise<void> {
   if (await modCloseBtn.isVisible()) {
     await modCloseBtn.click();
     await modPage.wasRemoved(
-      e.pickRandomUserPickedUserViewTitle,
+      e.pickRandomUserModal,
       'picked-user modal should close during cleanup',
       ELEMENT_WAIT_TIME,
     );
@@ -124,7 +124,7 @@ export async function attendeeCleanupAfterTest(attendeePage: Page): Promise<void
   if (await attendeeCloseBtn.isVisible()) {
     await attendeeCloseBtn.click();
     await attendeePage.wasRemoved(
-      e.pickRandomUserPickedUserViewTitle,
+      e.pickRandomUserModal,
       'attendee modal should close during cleanup',
       ELEMENT_WAIT_TIME,
     );

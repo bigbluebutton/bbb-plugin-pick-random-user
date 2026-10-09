@@ -37,10 +37,10 @@ export const elements = {
   pickRandomUserClearAllButton: '[data-test="pickRandomUserClearAllButton"]',
   pickRandomUserPreviouslyPickedList: '[data-test="pickRandomUserPreviouslyPickedList"]',
 
-  // Picked-user view. BBBModal renders the title with no data-test of its own, so this
-  // matches the modal itself (react-modal's `testId` becomes `data-testid`): it is there
-  // exactly while the modal is open, and its text includes the title.
-  pickRandomUserPickedUserViewTitle: '[data-testid="pickRandomUserModal"]',
+  // Picked-user view. The modal itself (react-modal's `testId` becomes `data-testid`), which
+  // is there exactly while the modal is open. BBBModal gives its title no data-test, so the
+  // title is checked through the modal's accessible name, which the plugin sets to it.
+  pickRandomUserModal: '[data-testid="pickRandomUserModal"]',
   pickRandomUserPickedUserName: '[data-test="pickRandomUserPickedUserName"]',
   pickRandomUserCloseButton: '[data-test="pickRandomUserCloseButton"]',
   pickRandomUserCountDownMessage: 'div[data-test="countDownMessage"]',
