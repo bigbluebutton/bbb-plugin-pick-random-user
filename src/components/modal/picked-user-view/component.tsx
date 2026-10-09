@@ -7,6 +7,7 @@ import { PickedUserViewComponentProps } from './types';
 import * as Styled from './styles';
 import { hasCurrentUserSeenPickedUser } from '../../../commons/utils';
 import { UserAvatar } from '../user-avatar/component';
+import { PickAgainButton } from '../pick-again-button/component';
 
 const intlMessages = defineMessages({
   resultSectionLabel: {
@@ -23,6 +24,7 @@ const intlMessages = defineMessages({
 
 export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
   const {
+    pluginApi,
     intl,
     pickedUserWithEntryId,
     currentUser,
@@ -79,6 +81,7 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
             label={intl.formatMessage(intlMessages.backButtonLabel)}
             onClick={handleBack}
           />
+          <PickAgainButton {...{ pluginApi, intl }} />
         </Styled.PickedUserViewFooter>
       )}
     </Styled.PickedUserViewWrapper>

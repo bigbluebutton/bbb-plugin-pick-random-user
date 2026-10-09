@@ -1,6 +1,7 @@
 import {
   CurrentUserData,
   GraphqlResponseWrapper,
+  PluginApi,
 } from 'bigbluebutton-html-plugin-sdk';
 import { IntlShape } from 'react-intl';
 import { DataChannelEntryResponseType, PushEntryFunction } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
@@ -8,6 +9,7 @@ import { PickedUserWithEntryId, PickedUserSeenEntryDataChannel } from '../pick-r
 import { PickRandomUserSettings } from '../../commons/types';
 
 export interface PickUserModalProps {
+  pluginApi: PluginApi;
   pickRandomUserSettings: PickRandomUserSettings
   uuid: string,
   intl: IntlShape

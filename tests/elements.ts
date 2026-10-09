@@ -41,6 +41,7 @@ export const elements = {
   pickRandomUserPickedUserViewTitle: '[data-test="pickRandomUserPickedUserViewTitle"]',
   pickRandomUserPickedUserName: '[data-test="pickRandomUserPickedUserName"]',
   pickRandomUserBackButton: '[data-test="pickRandomUserBackButton"]',
+  pickRandomUserPickAgainButton: '[data-test="pickRandomUserPickAgainButton"]',
   pickRandomUserCountDownMessage: 'div[data-test="countDownMessage"]',
 
   // Modal overlay (ReactModal renders this as a full-screen backdrop)
