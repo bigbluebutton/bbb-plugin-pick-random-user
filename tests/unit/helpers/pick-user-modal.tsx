@@ -82,7 +82,9 @@ export const renderModal = ({
     <PickUserModal {...props} showModal currentPickedUser={next} />,
   );
   newPick(currentPickedUser);
-  return { ...view, newPick, handleCloseModal };
+  return {
+    ...view, newPick, handleCloseModal, pushPickedUserSeen: props.pushPickedUserSeen,
+  };
 };
 
 export const finishSpin = () => act(() => {

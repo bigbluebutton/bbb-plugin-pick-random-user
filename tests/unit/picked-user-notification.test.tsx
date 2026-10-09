@@ -50,6 +50,19 @@ describe('picked user notification', () => {
     expect(notifyRandomlyPickedUser).toHaveBeenCalledWith('You have been randomly picked');
   });
 
+  it('counts the pick as seen only once the reel stops, so a reload mid-spin shows it again', () => {
+    const { pushPickedUserSeen } = renderModal({ currentUserName: 'Eduarda' });
+
+    expect(pushPickedUserSeen).not.toHaveBeenCalled();
+
+    finishSpin();
+
+    expect(pushPickedUserSeen).toHaveBeenCalledTimes(1);
+    expect(pushPickedUserSeen).toHaveBeenCalledWith({
+      pickedUserId: 'id-Eduarda', seenByUserId: 'id-Eduarda',
+    });
+  });
+
   it('tells nobody else', () => {
     renderModal({ currentUserName: 'Bruno' });
     finishSpin();

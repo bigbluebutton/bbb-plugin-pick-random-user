@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { defineMessages } from 'react-intl';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import { PickedUserViewComponentProps } from './types';
@@ -31,12 +31,20 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
     onReelLanded,
   } = props;
 
+  // The pick only counts as seen once the reel stops on it. A user who reloads the page
+  // mid-spin then gets the modal again, within pickedUserTimeWindow, and is told at the end
+  // of that spin instead of never.
+  const [landedEntryId, setLandedEntryId] = useState<string | null>(null);
   useMarkPickedUserSeen(
-    pickedUserWithEntryId,
+    landedEntryId === pickedUserWithEntryId?.entryId ? pickedUserWithEntryId : null,
     currentUser,
     pickedUserSeenEntries,
     pushPickedUserSeen,
   );
+  const handleReelLanded = () => {
+    setLandedEntryId(pickedUserWithEntryId?.entryId ?? null);
+    onReelLanded();
+  };
 
   const reel = useMemo(() => pickedUserWithEntryId && buildReel(
     pickedUserWithEntryId.pickedUser.reelNames,
@@ -52,7 +60,7 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
             targetIndex={reel.targetIndex}
             spinKey={pickedUserWithEntryId.entryId}
             onSpinningChange={onReelSpinningChange}
-            onLanded={onReelLanded}
+            onLanded={handleReelLanded}
             animated={reelAnimated}
           />
         )}
