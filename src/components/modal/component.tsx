@@ -305,6 +305,8 @@ export function PickUserModal(props: PickUserModalProps) {
       $hideCloseButton={isBot}
       $lockCloseButton={reelSpinning}
       title={modalTitle}
+      // The dialog's accessible name; BBBModal does not derive it from the title.
+      contentLabel={modalTitle}
       testId={MODAL_TEST_ID}
       noFooter
     >
