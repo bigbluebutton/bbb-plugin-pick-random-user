@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
+  DataChannelEntryResponseType,
   PluginApi,
   RESET_DATA_CHANNEL,
   UsersBasicInfoData,
@@ -10,6 +11,9 @@ import {
 } from '../types';
 import { PickedUser, PickedUserSeenEntryDataChannel } from '../../pick-random-user/types';
 import { filterPossibleUsersToBePicked } from './utils';
+
+// Shared, so an empty data channel does not hand the pool a new array on every render.
+const NO_PICKS: DataChannelEntryResponseType<PickedUser>[] = [];
 
 export function useGetPickRandomUserFunction(
   pluginApi: PluginApi,
@@ -83,13 +87,15 @@ export function useGetPossibleUsersToBePicked(
   const {
     data: pickedUserFromDataChannelResponse,
   } = pluginApi.useDataChannel<PickedUser>('pickRandomUser');
-  const pickedUserFromDataChannel = pickedUserFromDataChannelResponse?.data || [];
+  const pickedUserFromDataChannel = pickedUserFromDataChannelResponse?.data || NO_PICKS;
 
-  const result = filterPossibleUsersToBePicked(
+  // Memoized: the picked-user modal re-renders its pick-again button on every tick of the
+  // prevent-close countdown, and a fresh array each time would also re-run the effect below.
+  const result = useMemo(() => filterPossibleUsersToBePicked(
     allUsers,
     pickedUserFromDataChannel,
     filterOptions,
-  ).user;
+  ).user, [allUsers, pickedUserFromDataChannel, filterOptions]);
 
   // TEMPORARY DEBUG INSTRUMENTATION — see above.
   useEffect(() => {

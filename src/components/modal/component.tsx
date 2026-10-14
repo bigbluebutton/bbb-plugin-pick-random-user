@@ -97,6 +97,7 @@ export function PickUserModal(props: PickUserModalProps) {
     pushPickedUserSeen,
     isBot,
     uuid,
+    pluginApi,
   } = props;
 
   const modalAnchor = useRef(document.getElementById(uuid));
@@ -273,6 +274,7 @@ export function PickUserModal(props: PickUserModalProps) {
     >
       <PickedUserViewComponent
         {...{
+          pluginApi,
           pickedUserSeenEntries,
           pushPickedUserSeen,
           pickedUserWithEntryId: currentPickedUser,

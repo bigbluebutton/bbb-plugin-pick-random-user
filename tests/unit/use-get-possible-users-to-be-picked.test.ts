@@ -2,6 +2,7 @@ import {
   describe, it, expect, vi,
 } from 'vitest';
 import { renderHook } from '@testing-library/react';
+import { pluginLogger } from 'bigbluebutton-html-plugin-sdk';
 import { useGetPossibleUsersToBePicked } from '../../src/components/modal/presenter-view/hooks';
 import { FilterOptionsType } from '../../src/components/modal/types';
 
@@ -94,5 +95,28 @@ describe('useGetPossibleUsersToBePicked (unstable connection)', () => {
     );
     expect(result.current.isLoading).toBe(false);
     expect(result.current.users).toEqual([]);
+  });
+});
+
+describe('useGetPossibleUsersToBePicked (re-renders)', () => {
+  // The picked-user modal re-renders its pick-again button on every countdown tick.
+  it('keeps the same pool, and logs it once, when re-rendered with the same inputs', () => {
+    const api = makePluginApi(loadedWrapper([mod('m1'), mod('m2')]));
+    const filterOptions = filters();
+    const POOL_LOG = 'pick_random_user_debug_filtered_result';
+    const poolLogs = () => vi.mocked(pluginLogger.debug).mock.calls
+      .filter(([log]) => (log as { logCode: string }).logCode === POOL_LOG)
+      .length;
+    const { result, rerender } = renderHook(
+      () => useGetPossibleUsersToBePicked(api, filterOptions),
+    );
+    const firstPool = result.current.users;
+    const logsAfterMount = poolLogs();
+
+    rerender();
+    rerender();
+
+    expect(result.current.users).toBe(firstPool);
+    expect(poolLogs()).toBe(logsAfterMount);
   });
 });

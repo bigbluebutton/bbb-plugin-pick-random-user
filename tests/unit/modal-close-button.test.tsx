@@ -61,6 +61,8 @@ function renderModal({ isBot = false, preventCloseDelaySeconds = 30 } = {}) {
         pickedUserSeenEntries: { loading: false, data: [], error: undefined } as never,
         pushPickedUserSeen: vi.fn(),
         isBot,
+        // Only the presenter's pick-again button uses it, and this user is not the presenter.
+        pluginApi: {} as never,
       }}
     />,
   );
