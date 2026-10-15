@@ -32,6 +32,8 @@ Down below, we list all the possible configurations this plugin supports, and th
     pickedUserTimeWindow: 10 # seconds
     preventCloseDelaySeconds: 3 # seconds
     modalUiScale: 1
+    reelEnabled: true
+    reelAnimationEnabled: true
 ```
 
 | Name                   | Description                          | Default                     |
@@ -42,6 +44,8 @@ Down below, we list all the possible configurations this plugin supports, and th
 | `pickedUserTimeWindow` | Time window to consider a user as recently picked (users that join after that time will not see the last modal) | `10`               |
 | `preventCloseDelaySeconds` | Delay in seconds before the modal can be closed to prevent accidental closures | `3` |
 | `modalUiScale` | Multiplier applied to all font sizes and spacing values in the modal UI | `1` |
+| `reelEnabled` | Flag that decides whether the picked-user modal shows the reel of names. When `false`, the modal is the simpler one from before the reel: the picked user's avatar and name, shown right away | `true` |
+| `reelAnimationEnabled` | Flag that decides whether the reel spins before stopping on the picked user (only applies when `reelEnabled` is `true`). When `false`, the picked user shows right away. Even when `true`, the reel does not spin for users who turned Animations off in the client's Settings or whose system asks for reduced motion | `true` |
 
 
 ### Size Multiplier
@@ -59,15 +63,36 @@ public:
 
 The multiplier applies to: font sizes, padding, margins, gaps, and list max-heights throughout the picked-user modal and the presenter's sidekick panel.
 
+### Reel
+
+By default, the picked-user modal spins a reel of names (a sample of the users who could have been picked) and stops on the picked user. Everyone in the meeting sees the same reel. Two settings control it:
+- `reelEnabled`: set it to `false` to turn the reel off. The modal is then the one from before the reel: the picked user's avatar and name, shown right away.
+- `reelAnimationEnabled`: set it to `false` to keep the reel but not spin it: the reel shows the picked user right away.
+
+Even with both on, the reel does not spin for users who turned Animations off in the client's Settings, or whose system asks for reduced motion.
+
+To turn the reel off, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
+
+```yaml
+public:
+  # ...
+  plugins:
+    - name: BbbPluginPickRandomUser
+      settings:
+        reelEnabled: false
+```
+
 ### Prevent Close Delay
 
-By default, when the modal appears showing the picked user (the view that displays the selected user's name and avatar), it cannot be closed for 3 seconds. This prevents accidental closures from misclicks. During this time:
+By default, when the modal appears showing the picked user (the view where a reel of names spins and stops on the selected user), it cannot be closed for 3 seconds. This prevents accidental closures from misclicks. During this time:
 - The close button (X) is disabled and grayed out
 - Clicking outside the modal does nothing
 - Pressing the Escape key does nothing
 - Visual countdown indicator:
   - **For viewers**: A text message below the user's name: "You can close this modal in X seconds"
   - **For presenters**: A blue progress bar (similar to YouTube's) that shrinks as time passes
+
+Independently of this delay, the modal cannot be closed at all while the reel spins: its close button (X), the Close button, a click outside and the Escape key only work once the reel stops. Otherwise the picked user could close it before the result is in, and miss the ping sound and the notification, which wait for the reel to stop.
 
 **Note:** This delay only applies to the picked user modal. On BigBlueButton 4.0 the presenter view (used for selecting users) lives in the plugin's sidekick panel, opened from the apps gallery, and is not affected by this delay.
 
@@ -84,7 +109,7 @@ public:
 
 ### Notification
 
-By default, browser notification when user is randomly picked is not enabled. To enable it, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
+By default, browser notification when user is randomly picked is not enabled. When enabled, it is shown to the picked user once the reel stops on their name, so it does not give the result away while the reel spins (right away when `reelEnabled` is `false`). To enable it, add the following settings in the `/etc/bigbluebutton/bbb-html5.yml` file:
 
 ```yaml
 public:
@@ -97,7 +122,7 @@ public:
 
 ### Ping sound
 
-By default, ping sound is played for the randomly picked user. To remove this feature, one must add the following configurations in their `/etc/bigbluebutton/bbb-html5.yml` file.
+By default, ping sound is played for the randomly picked user, once the reel stops on their name (right away when `reelEnabled` is `false`). To remove this feature, one must add the following configurations in their `/etc/bigbluebutton/bbb-html5.yml` file.
 
 So within that file and in `public.plugins` add the following configurations:
 

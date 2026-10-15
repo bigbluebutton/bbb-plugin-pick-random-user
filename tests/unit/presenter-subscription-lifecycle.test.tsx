@@ -62,6 +62,7 @@ function makePluginApi(
       deleteEntry: vi.fn(),
     }),
     useCurrentUser: () => ({ data: { userId: 'presenter-1', presenter } }),
+    useCustomSubscription: () => ({ data: undefined }),
   } as never;
 }
 
@@ -75,6 +76,7 @@ describe('presenter-view data subscription lifecycle (unstable connection follow
         pluginApi={makePluginApi(onSubscribe, onUnsubscribe, false)}
         intl={intl}
         modalUiScale={1}
+        reelAnimationEnabled
       />,
     );
 
@@ -90,6 +92,7 @@ describe('presenter-view data subscription lifecycle (unstable connection follow
         pluginApi={makePluginApi(onSubscribe, onUnsubscribe)}
         intl={intl}
         modalUiScale={1}
+        reelAnimationEnabled
       />,
     );
 
@@ -105,6 +108,7 @@ describe('presenter-view data subscription lifecycle (unstable connection follow
         ])}
         intl={intl}
         modalUiScale={1}
+        reelAnimationEnabled
       />,
     );
 
@@ -120,6 +124,7 @@ describe('presenter-view data subscription lifecycle (unstable connection follow
         ])}
         intl={intl}
         modalUiScale={1}
+        reelAnimationEnabled
       />,
     );
 
@@ -136,6 +141,7 @@ describe('presenter-view data subscription lifecycle (unstable connection follow
         pluginApi={makePluginApi(onSubscribe, onUnsubscribe)}
         intl={intl}
         modalUiScale={1}
+        reelAnimationEnabled
       />,
     );
 
@@ -156,6 +162,7 @@ describe('presenter-view data subscription lifecycle (unstable connection follow
         pluginApi={makePluginApi(onSubscribe, onUnsubscribe)}
         intl={intl}
         modalUiScale={1}
+        reelAnimationEnabled
       />,
     );
 
@@ -166,6 +173,7 @@ describe('presenter-view data subscription lifecycle (unstable connection follow
         pluginApi={makePluginApi(onSubscribe, onUnsubscribe, false)}
         intl={intl}
         modalUiScale={1}
+        reelAnimationEnabled
       />,
     );
 

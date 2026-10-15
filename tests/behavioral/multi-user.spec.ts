@@ -181,31 +181,29 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
 
     // The attendee's modal should open driven purely by the data-channel push.
     await attendeePage.hasElement(
-      e.pickRandomUserPickedUserViewTitle,
+      e.pickRandomUserModal,
       'attendee modal should open automatically via data channel after the presenter picks',
       ELEMENT_WAIT_LONGER_TIME,
     );
   });
 
-  test('should show the "Result" section label to both the picked attendee and the presenter', async (): Promise<void> => {
+  test('should show the "Participant picked!" title to both the picked attendee and the presenter', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openPickRandomUserPanel(modPage);
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
     await modPage.page.click(e.pickRandomUserPickButton);
 
-    await attendeePage.hasElement(e.pickRandomUserPickedUserViewTitle, 'attendee modal should open', ELEMENT_WAIT_LONGER_TIME);
-    await attendeePage.hasText(
-      e.pickRandomUserPickedUserViewTitle,
-      'Result',
-      'picked attendee should see the "Result" section label',
-    );
+    await attendeePage.hasElement(e.pickRandomUserModal, 'attendee modal should open', ELEMENT_WAIT_LONGER_TIME);
+    await test.expect(
+      attendeePage.getLocator(e.pickRandomUserModal),
+      'picked attendee should see the "Participant picked!" title',
+    ).toHaveAccessibleName('Participant picked!');
 
-    await modPage.hasElement(e.pickRandomUserPickedUserViewTitle, 'presenter should see the picked-user modal', ELEMENT_WAIT_LONGER_TIME);
-    await modPage.hasText(
-      e.pickRandomUserPickedUserViewTitle,
-      'Result',
-      'presenter should see the "Result" section label',
-    );
+    await modPage.hasElement(e.pickRandomUserModal, 'presenter should see the picked-user modal', ELEMENT_WAIT_LONGER_TIME);
+    await test.expect(
+      modPage.getLocator(e.pickRandomUserModal),
+      'presenter should see the "Participant picked!" title',
+    ).toHaveAccessibleName('Participant picked!');
   });
 
   test('should show the pick again button to the presenter only', async (): Promise<void> => {
@@ -238,7 +236,7 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     // Pick the attendee (the only eligible viewer with default filters).
     await modPage.page.click(e.pickRandomUserPickButton);
     await modPage.hasElement(
-      e.pickRandomUserPickedUserViewTitle,
+      e.pickRandomUserModal,
       'presenter should see the picked-user modal',
       ELEMENT_WAIT_LONGER_TIME,
     );
@@ -275,7 +273,7 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     // ── Assertion 3: re-picking selects the same (and only) eligible user ─────
     await modPage.page.click(e.pickRandomUserPickButton);
     await modPage.hasElement(
-      e.pickRandomUserPickedUserViewTitle,
+      e.pickRandomUserModal,
       'presenter should see the picked-user modal after re-picking',
       ELEMENT_WAIT_LONGER_TIME,
     );
@@ -390,8 +388,8 @@ test.describe('Pick Random User Plugin - Behavioural (countdown and close-preven
     await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
     await modPage.page.click(e.pickRandomUserPickButton);
 
-    await modPage.hasElement(e.pickRandomUserPickedUserViewTitle, 'presenter modal should open', ELEMENT_WAIT_LONGER_TIME);
-    await attendeePage.hasElement(e.pickRandomUserPickedUserViewTitle, 'attendee view should open', ELEMENT_WAIT_LONGER_TIME);
+    await modPage.hasElement(e.pickRandomUserModal, 'presenter modal should open', ELEMENT_WAIT_LONGER_TIME);
+    await attendeePage.hasElement(e.pickRandomUserModal, 'attendee view should open', ELEMENT_WAIT_LONGER_TIME);
 
     const attendeeCountdown = attendeePage.getLocator(e.pickRandomUserCountDownMessage);
     await test.expect(
@@ -417,7 +415,7 @@ test.describe('Pick Random User Plugin - Behavioural (countdown and close-preven
 
     // Wait for the attendee's modal to open via data-channel sync.
     await attendeePage.hasElement(
-      e.pickRandomUserPickedUserViewTitle,
+      e.pickRandomUserModal,
       'attendee modal should open after being picked',
       ELEMENT_WAIT_LONGER_TIME,
     );
@@ -431,7 +429,7 @@ test.describe('Pick Random User Plugin - Behavioural (countdown and close-preven
 
     // The modal must still be open – the overlay click should have been swallowed.
     await test.expect(
-      attendeePage.getLocator(e.pickRandomUserPickedUserViewTitle),
+      attendeePage.getLocator(e.pickRandomUserModal),
       'modal should remain open after clicking the overlay during the countdown lock period',
     ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
   });

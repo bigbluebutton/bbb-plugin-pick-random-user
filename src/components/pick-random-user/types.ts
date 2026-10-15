@@ -6,6 +6,9 @@ export interface PickedUser {
     avatar: string;
     color: string;
     bot: boolean;
+    // Names the modal's reel spins through before stopping on this user. Missing on picks
+    // published before the reel existed.
+    reelNames?: string[];
 }
 
 export interface PickedUserWithEntryId {
@@ -29,4 +32,13 @@ export interface BotData {
 
 export interface BotDataWrapper {
   user_current: BotData[];
+}
+
+// The one client setting this plugin reads (see ANIMATIONS_SETTING_SUBSCRIPTION).
+export interface AnimationsSettingWrapper {
+  user_current: {
+    userClientSettings: {
+      animations: boolean | null;
+    } | null;
+  }[];
 }

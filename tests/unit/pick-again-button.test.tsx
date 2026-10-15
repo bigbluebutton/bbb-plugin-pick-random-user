@@ -1,11 +1,15 @@
 import * as React from 'react';
 import {
-  describe, it, expect, vi, afterEach,
+  describe, it, expect, vi, afterEach, beforeEach,
 } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import { createIntl } from 'react-intl';
-import { PickedUserViewComponent } from '../../src/components/modal/picked-user-view/component';
+// The classic view is the modal this button was added to; the reel shows it the same way.
+import { ClassicPickedUserView } from '../../src/components/modal/classic-picked-user-view/component';
 import { FilterOptionsType } from '../../src/components/modal/types';
+import {
+  finishSpin, prepareModalContainers, renderModal,
+} from './helpers/pick-user-modal';
 
 vi.mock('bigbluebutton-html-plugin-sdk', () => ({
   RESET_DATA_CHANNEL: 'RESET_DATA_CHANNEL',
@@ -53,7 +57,7 @@ function renderPickedUserView({
   } as never;
 
   const view = render(
-    <PickedUserViewComponent
+    <ClassicPickedUserView
       {...{
         pluginApi,
         intl,
@@ -63,8 +67,7 @@ function renderPickedUserView({
         pushPickedUserSeen: vi.fn(),
         handleBack: vi.fn(),
         showBackButton: true,
-        remainingSeconds: 0,
-        canClose: true,
+        onPickShown: vi.fn(),
       }}
     />,
   );
@@ -104,5 +107,35 @@ describe('pick again button in the picked-user modal', () => {
   it('is disabled while the user list loads, or when nobody can be picked', () => {
     expect(renderPickedUserView({ usersLoading: true }).button()).toBeDisabled();
     expect(renderPickedUserView({ users: [user('m1', 'MODERATOR')] }).button()).toBeDisabled();
+  });
+});
+
+describe('pick again in the reel\'s footer', () => {
+  const pickAgain = () => document.querySelector<HTMLButtonElement>(PICK_AGAIN);
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    prepareModalContainers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('can only be used once the reel stops', () => {
+    renderModal({ presenter: true, currentUserName: 'Presenter' });
+
+    expect(pickAgain()).toBeDisabled();
+
+    finishSpin();
+
+    expect(pickAgain()).toBeEnabled();
+  });
+
+  it('is offered to the presenter only', () => {
+    renderModal({ currentUserName: 'Bruno' });
+    finishSpin();
+
+    expect(pickAgain()).toBeNull();
   });
 });

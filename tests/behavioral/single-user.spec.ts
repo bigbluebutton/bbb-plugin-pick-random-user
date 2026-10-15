@@ -38,7 +38,7 @@ async function enableAllFilters(modPage: ModPage): Promise<void> {
 async function pickUser(modPage: ModPage): Promise<void> {
   await modPage.page.click(e.pickRandomUserPickButton);
   await modPage.hasElement(
-    e.pickRandomUserPickedUserViewTitle,
+    e.pickRandomUserModal,
     'picked-user modal should open after clicking pick',
     ELEMENT_WAIT_LONGER_TIME,
   );

@@ -2,6 +2,7 @@ import {
   CurrentUserData,
   DataChannelEntryResponseType,
   GraphqlResponseWrapper,
+  PluginApi,
 } from 'bigbluebutton-html-plugin-sdk';
 import { PluginSettingsData } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/settings/plugin-settings/types';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,9 @@ import {
   PickedUser,
   PickedUserSeenEntryDataChannel,
   PickedUserWithEntryId,
+  AnimationsSettingWrapper,
 } from './types';
+import { ANIMATIONS_SETTING_SUBSCRIPTION } from './queries';
 
 declare const window: WindowClientSettings;
 
@@ -63,6 +66,24 @@ export const getBrowserNotificationEnabled = (
     || settings.browserNotificationEnabled === null) {
     return previousState;
   } return !!settings.browserNotificationEnabled;
+};
+
+export const getReelEnabled = (
+  settings: PluginSettingsData,
+  previousState: boolean,
+): boolean => {
+  if (settings.reelEnabled === undefined || settings.reelEnabled === null) {
+    return previousState;
+  } return !!settings.reelEnabled;
+};
+
+export const getReelAnimationEnabled = (
+  settings: PluginSettingsData,
+  previousState: boolean,
+): boolean => {
+  if (settings.reelAnimationEnabled === undefined || settings.reelAnimationEnabled === null) {
+    return previousState;
+  } return !!settings.reelAnimationEnabled;
 };
 
 export const getPickedUserTimeWindowFromSettings = (settings: PluginSettingsData) => {
@@ -111,6 +132,8 @@ export const useGetAllSettings = (
     DEFAULT_PREVENT_CLOSE_DELAY_SECONDS,
   );
   const [modalUiScale, setModalUiScale] = useState<number>(DEFAULT_MODAL_UI_SCALE);
+  const [reelEnabled, setReelEnabled] = useState<boolean>(true);
+  const [reelAnimationEnabled, setReelAnimationEnabled] = useState<boolean>(true);
   useSettingsLoaded((settings) => {
     setBrowserNotificationEnabled(
       (previousState) => getBrowserNotificationEnabled(settings, previousState),
@@ -122,6 +145,12 @@ export const useGetAllSettings = (
     setPingSoundUrl(getPingSoundUrl(settings));
     setPreventCloseDelaySeconds(getPreventCloseDelayFromSettings(settings));
     setModalUiScale(getSizeMultiplierFromSettings(settings));
+    setReelEnabled(
+      (previousState) => getReelEnabled(settings, previousState),
+    );
+    setReelAnimationEnabled(
+      (previousState) => getReelAnimationEnabled(settings, previousState),
+    );
   }, settingsData);
   return {
     pingSoundEnabled,
@@ -130,7 +159,23 @@ export const useGetAllSettings = (
     pickedUserTimeWindow,
     preventCloseDelaySeconds,
     modalUiScale,
+    reelEnabled,
+    reelAnimationEnabled,
   };
+};
+
+/**
+ * Whether the user keeps "Animations" on in the client's Settings. The client stores the
+ * user's settings server-side as soon as they join and whenever they save them, so this
+ * follows the toggle during the meeting too. Until they arrive, animations count as on,
+ * which is also the client's own default.
+ * @param pluginApi plugin API of the current plugin instance
+ * @returns false only when the user turned Animations off
+ */
+export const useClientAnimationsEnabled = (pluginApi: PluginApi): boolean => {
+  const { data } = pluginApi
+    .useCustomSubscription!<AnimationsSettingWrapper>(ANIMATIONS_SETTING_SUBSCRIPTION) || {};
+  return data?.user_current?.[0]?.userClientSettings?.animations !== false;
 };
 
 // ---

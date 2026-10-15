@@ -16,10 +16,15 @@ export interface PickedUserViewComponentProps {
     pickedUserSeenEntries: GraphqlResponseWrapper<
         DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>;
     pushPickedUserSeen: PushEntryFunction<PickedUserSeenEntryDataChannel>;
-    // On v0.0.x "back" returns to the presenter view inside the modal. On this branch the
-    // presenter view is the sidekick panel, so "back" simply dismisses the modal.
-    handleBack: () => void;
-    showBackButton: boolean;
-    remainingSeconds: number;
-    canClose: boolean;
+    handleClose: () => void;
+    // Bots get no footer: they cannot use its button.
+    isBot: boolean;
+    // Whether the reel spins: off when the `reelAnimationEnabled` setting or the user's
+    // Animations choice turns it off, and then it shows the result right away.
+    reelAnimated: boolean;
+    // Whether the reel is still spinning, when neither footer button can be used.
+    reelSpinning: boolean;
+    onReelSpinningChange: (spinning: boolean) => void;
+    // Once per pick, when the reel stops on it (see PickUserModal).
+    onReelLanded: () => void;
 }

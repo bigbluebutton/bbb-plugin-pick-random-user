@@ -35,6 +35,8 @@ const settings = {
   pickedUserTimeWindow: 0,
   preventCloseDelaySeconds: 30,
   modalUiScale: 1,
+  reelEnabled: true,
+  reelAnimationEnabled: true,
 };
 
 const CLOSE_BUTTON = '[data-test="pickRandomUserModal-close-button"]';
@@ -61,8 +63,8 @@ function renderModal({ isBot = false, preventCloseDelaySeconds = 30 } = {}) {
         pickedUserSeenEntries: { loading: false, data: [], error: undefined } as never,
         pushPickedUserSeen: vi.fn(),
         isBot,
-        // Only the presenter's pick-again button uses it, and this user is not the presenter.
-        pluginApi: {} as never,
+        // Read by the modal for the user's Animations setting; not loaded yet here.
+        pluginApi: { useCustomSubscription: () => ({ loading: true }) } as never,
       }}
     />,
   );

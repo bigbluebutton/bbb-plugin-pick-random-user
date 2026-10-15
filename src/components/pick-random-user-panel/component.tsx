@@ -5,7 +5,7 @@ import { PickRandomUserPanelContentProps, PickRandomUserPanelProps } from './typ
 import { PresenterViewComponent } from '../modal/presenter-view/component';
 import { useGetPossibleUsersToBePicked } from '../modal/presenter-view/hooks';
 import { useGetFilterOptions } from '../modal/hooks';
-import { useGetCurrentPickedUser } from '../pick-random-user/hooks';
+import { useClientAnimationsEnabled, useGetCurrentPickedUser } from '../pick-random-user/hooks';
 import { PickedUser } from '../pick-random-user/types';
 
 /**
@@ -18,7 +18,7 @@ import { PickedUser } from '../pick-random-user/types';
  * subscription is only ever opened for the presenter, and stays alive across picks.
  */
 function PickRandomUserPanelContent(props: PickRandomUserPanelContentProps) {
-  const { pluginApi, intl } = props;
+  const { pluginApi, intl, reelAnimationEnabled } = props;
 
   const [filterOptions, setFilterOptions] = useGetFilterOptions(pluginApi, true);
 
@@ -35,6 +35,10 @@ function PickRandomUserPanelContent(props: PickRandomUserPanelContentProps) {
 
   const pickedUserWithEntryId = useGetCurrentPickedUser(dataChannelPickedUsers);
 
+  // The same rule as the presenter's own reel in the modal.
+  const clientAnimationsEnabled = useClientAnimationsEnabled(pluginApi);
+  const reelAnimated = reelAnimationEnabled && clientAnimationsEnabled;
+
   return (
     <PresenterViewComponent
       {...{
@@ -47,6 +51,7 @@ function PickRandomUserPanelContent(props: PickRandomUserPanelContentProps) {
         pickedUserWithEntryId,
         usersToBePicked,
         isLoading,
+        reelAnimated,
       }}
     />
   );
@@ -57,7 +62,9 @@ function PickRandomUserPanelContent(props: PickRandomUserPanelContentProps) {
  * `extensible-areas/generic-content-sidekick-area/component`.
  */
 export function PickRandomUserPanel(props: PickRandomUserPanelProps) {
-  const { pluginApi, intl, modalUiScale } = props;
+  const {
+    pluginApi, intl, modalUiScale, reelAnimationEnabled,
+  } = props;
 
   const { data: currentUser } = pluginApi.useCurrentUser();
 
@@ -65,7 +72,7 @@ export function PickRandomUserPanel(props: PickRandomUserPanelProps) {
 
   return (
     <Styled.PanelWrapper $modalUiScale={modalUiScale} data-test="pickRandomUserPanel">
-      <PickRandomUserPanelContent {...{ pluginApi, intl }} />
+      <PickRandomUserPanelContent {...{ pluginApi, intl, reelAnimationEnabled }} />
     </Styled.PanelWrapper>
   );
 }
