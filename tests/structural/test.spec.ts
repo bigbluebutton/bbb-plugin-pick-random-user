@@ -76,7 +76,7 @@ test.describe('Pick Random User Plugin - Structural', () => {
   }
 
   test('should list "Pick random user" in the apps gallery for a presenter', async (): Promise<void> => {
-    await modPage.page.waitForSelector(e.whiteboard, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await modPage.waitUntilInMeeting();
     await modPage.page.click(e.appsGallerySidebarButton);
     await modPage.hasElement(
       e.pickRandomUserAppsGalleryItem,
