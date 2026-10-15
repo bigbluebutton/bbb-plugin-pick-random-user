@@ -9,9 +9,9 @@ import { PickedUserWithEntryId, PickedUserSeenEntryDataChannel } from '../pick-r
 import { PickRandomUserSettings } from '../../commons/types';
 
 export interface PickUserModalProps {
+  pluginApi: PluginApi;
   pickRandomUserSettings: PickRandomUserSettings
   uuid: string,
-  pluginApi: PluginApi,
   intl: IntlShape
   showModal: boolean;
   handleCloseModal: () => void;

@@ -57,11 +57,25 @@ export const renderModal = ({
   presenter = false,
 } = {}) => {
   const handleCloseModal = vi.fn();
-  // The modal reads the user's Animations setting through a custom subscription.
+  const pushPick = vi.fn();
+  // Stable between renders, as the SDK hands its data over.
+  const candidates = {
+    loading: false,
+    data: { user: NAMES.map((name) => pick(name, '').pickedUser) },
+  };
   const pluginApi = {
+    // The modal reads the user's Animations setting through a custom subscription.
     useCustomSubscription: () => ({
       data: { user_current: [{ userClientSettings: { animations: clientAnimationsEnabled } }] },
       loading: false,
+    }),
+    // The presenter's pick-again button reads the user list and the data channels.
+    useUsersBasicInfo: () => candidates,
+    useCurrentUser: () => ({ data: { userId: `id-${currentUserName}`, presenter } }),
+    useDataChannel: (channel: string) => ({
+      data: { loading: false, data: [] },
+      pushEntry: channel === 'pickRandomUser' ? pushPick : vi.fn(),
+      deleteEntry: vi.fn(),
     }),
   } as never;
   const props = {
@@ -83,7 +97,7 @@ export const renderModal = ({
   );
   newPick(currentPickedUser);
   return {
-    ...view, newPick, handleCloseModal, pushPickedUserSeen: props.pushPickedUserSeen,
+    ...view, newPick, handleCloseModal, pushPickedUserSeen: props.pushPickedUserSeen, pushPick,
   };
 };
 

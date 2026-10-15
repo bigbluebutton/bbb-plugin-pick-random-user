@@ -313,6 +313,7 @@ export function PickUserModal(props: PickUserModalProps) {
       {reelEnabled ? (
         <PickedUserViewComponent
           {...{
+            pluginApi,
             pickedUserSeenEntries,
             pushPickedUserSeen,
             pickedUserWithEntryId: currentPickedUser,
@@ -329,6 +330,7 @@ export function PickUserModal(props: PickUserModalProps) {
       ) : (
         <ClassicPickedUserView
           {...{
+            pluginApi,
             intl,
             pickedUserWithEntryId: currentPickedUser,
             currentUser,

@@ -206,6 +206,21 @@ test.describe('Pick Random User Plugin - Behavioural (multi-user)', () => {
     ).toHaveAccessibleName('Participant picked!');
   });
 
+  test('should show the pick again button to the presenter only', async (): Promise<void> => {
+    await waitForAttendeeMeeting(attendeePage);
+    await openPickRandomUserPanel(modPage);
+    await modPage.hasElement(e.pickRandomUserPickButton, 'pick button should be visible', ELEMENT_WAIT_LONGER_TIME);
+    await modPage.page.click(e.pickRandomUserPickButton);
+
+    await attendeePage.hasElement(e.pickRandomUserPickedUserName, 'attendee modal should open', ELEMENT_WAIT_LONGER_TIME);
+    await test.expect(
+      attendeePage.getLocator(e.pickRandomUserPickAgainButton),
+      'attendee must not be offered to pick again',
+    ).toHaveCount(0);
+
+    await modPage.hasElement(e.pickRandomUserPickAgainButton, 'presenter should see the pick again button', ELEMENT_WAIT_LONGER_TIME);
+  });
+
   test('should keep the previously-picked viewer in the available pool and re-pick the same user when "include already picked users" is enabled', async (): Promise<void> => {
     await waitForAttendeeMeeting(attendeePage);
     await openPickRandomUserPanel(modPage);

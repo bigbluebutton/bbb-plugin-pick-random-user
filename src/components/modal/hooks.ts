@@ -116,6 +116,12 @@ export const usePreventCloseModalCountdown = (
 };
 
 // Filter Options hooks and utilities
+const DEFAULT_FILTER_OPTIONS: FilterOptionsType = {
+  includeModerators: false,
+  includePresenter: false,
+  includePickedUsers: false,
+};
+
 const useUpdateFilterOptionsOnDataChannel = (
   pushFilterOptionsToDataChannel: PushEntryFunction<FilterOptionsType>,
   filterOptions: FilterOptionsType,
@@ -173,11 +179,7 @@ export const useGetFilterOptions = (
   pluginApi: PluginApi,
   currentUserPresenter: boolean,
 ): [FilterOptionsType, React.Dispatch<React.SetStateAction<FilterOptionsType>>] => {
-  const [filterOptions, setFilterOptions] = useState<FilterOptionsType>({
-    includeModerators: false,
-    includePresenter: false,
-    includePickedUsers: false,
-  });
+  const [filterOptions, setFilterOptions] = useState<FilterOptionsType>(DEFAULT_FILTER_OPTIONS);
   const [hasDataChannelBeenApplied, setHasDataChannelBeenApplied] = useState(false);
   const {
     data: filterOptionsFromDataChannel,
@@ -201,4 +203,19 @@ export const useGetFilterOptions = (
     hasDataChannelBeenApplied,
   );
   return [filterOptions, setFilterOptions];
+};
+
+/**
+ * Read-only view of the filter options the presenter set in the panel, for picking again
+ * from somewhere other than the panel. Unlike `useGetFilterOptions` it never writes back to
+ * the data channel, so it cannot race the panel over the latest entry.
+ * @param pluginApi plugin API of the current plugin instance
+ * @returns the latest filter options, or the defaults while none were published
+ */
+export const useFilterOptionsFromDataChannel = (pluginApi: PluginApi): FilterOptionsType => {
+  const {
+    data: filterOptionsFromDataChannel,
+  } = pluginApi.useDataChannel<FilterOptionsType>('filterOptions', DataChannelTypes.LATEST_ITEM);
+  return getLatestFilterOptionsFromDataChannel(filterOptionsFromDataChannel)
+    ?? DEFAULT_FILTER_OPTIONS;
 };

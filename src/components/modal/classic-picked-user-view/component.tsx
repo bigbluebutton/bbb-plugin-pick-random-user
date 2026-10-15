@@ -6,6 +6,7 @@ import { colors } from '@bigbluebutton/bbb-ui-components-react/colors';
 import { ClassicPickedUserViewProps } from './types';
 import * as Styled from './styles';
 import { UserAvatar } from '../user-avatar/component';
+import { PickAgainButton } from '../pick-again-button/component';
 import { useMarkPickedUserSeen } from '../hooks';
 
 const intlMessages = defineMessages({
@@ -27,6 +28,7 @@ const intlMessages = defineMessages({
  */
 export function ClassicPickedUserView(props: ClassicPickedUserViewProps) {
   const {
+    pluginApi,
     intl,
     pickedUserWithEntryId,
     currentUser,
@@ -83,6 +85,7 @@ export function ClassicPickedUserView(props: ClassicPickedUserViewProps) {
             label={intl.formatMessage(intlMessages.backButtonLabel)}
             onClick={handleBack}
           />
+          <PickAgainButton {...{ pluginApi, intl }} />
         </Styled.PickedUserViewFooter>
       )}
     </Styled.PickedUserViewWrapper>

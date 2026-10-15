@@ -64,10 +64,11 @@ describe('picked-user modal with the reel turned off', () => {
     expect(handleCloseModal).toHaveBeenCalledTimes(1);
   });
 
-  it('gives the presenter the back button, not the reel\'s footer', () => {
+  it('gives the presenter the back and pick again buttons, not the reel\'s Close button', () => {
     classic({ presenter: true });
 
     expect(query('pickRandomUserBackButton')).not.toBeNull();
+    expect(query('pickRandomUserPickAgainButton')).not.toBeNull();
     expect(query('pickRandomUserCloseButton')).toBeNull();
   });
 });

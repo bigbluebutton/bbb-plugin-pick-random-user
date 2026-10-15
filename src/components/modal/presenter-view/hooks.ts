@@ -96,8 +96,8 @@ export function useGetPossibleUsersToBePicked(
   } = pluginApi.useDataChannel<PickedUser>('pickRandomUser');
   const pickedUserFromDataChannel = pickedUserFromDataChannelResponse?.data || NO_PICKS;
 
-  // Memoized, so a re-render that changes none of the inputs keeps the same pool and does
-  // not re-run the effect below.
+  // Memoized: the picked-user modal re-renders its pick-again button on every tick of the
+  // prevent-close countdown, and a fresh array each time would also re-run the effect below.
   const result = useMemo(() => filterPossibleUsersToBePicked(
     allUsers,
     pickedUserFromDataChannel,
