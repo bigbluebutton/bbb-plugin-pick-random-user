@@ -19,7 +19,7 @@ const intlMessages = defineMessages({
  * needs is never opened for anyone else. Disabled while that list is not loaded, for the
  * same reason the panel hides its pick button: the presenter must not pick from stale data.
  */
-export function PickAgainButton({ pluginApi, intl }: PickAgainButtonProps) {
+export function PickAgainButton({ pluginApi, intl, disabled = false }: PickAgainButtonProps) {
   const filterOptions = useFilterOptionsFromDataChannel(pluginApi);
   const { users: usersToBePicked, isLoading } = useGetPossibleUsersToBePicked(
     pluginApi,
@@ -32,7 +32,7 @@ export function PickAgainButton({ pluginApi, intl }: PickAgainButtonProps) {
       variant="secondary"
       dataTest="pickRandomUserPickAgainButton"
       label={intl.formatMessage(intlMessages.pickAgainButtonLabel)}
-      disabled={isLoading || usersToBePicked.length === 0}
+      disabled={disabled || isLoading || usersToBePicked.length === 0}
       onClick={handlePickRandomUser}
     />
   );

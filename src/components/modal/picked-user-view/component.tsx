@@ -77,7 +77,9 @@ export function PickedUserViewComponent(props: PickedUserViewComponentProps) {
             disabled={reelSpinning}
             onClick={handleClose}
           />
-          {currentUser?.presenter && <PickAgainButton {...{ pluginApi, intl }} />}
+          {currentUser?.presenter && (
+            <PickAgainButton {...{ pluginApi, intl, disabled: reelSpinning }} />
+          )}
         </Styled.PickedUserViewFooter>
       )}
     </Styled.PickedUserViewWrapper>

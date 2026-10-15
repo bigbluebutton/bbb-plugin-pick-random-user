@@ -22,7 +22,7 @@ export interface PickedUserViewComponentProps {
     // Whether the reel spins: off when the `reelAnimationEnabled` setting or the user's
     // Animations choice turns it off, and then it shows the result right away.
     reelAnimated: boolean;
-    // Whether the reel is still spinning, when the Close button cannot be used.
+    // Whether the reel is still spinning, when neither footer button can be used.
     reelSpinning: boolean;
     onReelSpinningChange: (spinning: boolean) => void;
     // Once per pick, when the reel stops on it (see PickUserModal).
