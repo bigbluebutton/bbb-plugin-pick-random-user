@@ -34,6 +34,8 @@ const settings = () => ({
   pickedUserTimeWindow: 30,
   preventCloseDelaySeconds: 0,
   modalUiScale: 1,
+  reelEnabled: true,
+  reelAnimationEnabled: true,
 });
 
 const currentUser = (presenter: boolean) => ({ userId: 'user-1', presenter } as never);

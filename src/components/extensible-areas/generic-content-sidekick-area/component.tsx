@@ -49,6 +49,8 @@ function GenericContentSidekickAreaManager(
 
   const sidekickAreaName = intl.formatMessage(intlMessages.sidekickAreaTitle);
   const { modalUiScale } = pickRandomUserSettings;
+  const reelAnimationEnabled = pickRandomUserSettings.reelEnabled
+    && pickRandomUserSettings.reelAnimationEnabled;
   const isPresenter = !!currentUser?.presenter;
 
   useEffect(() => {
@@ -65,6 +67,7 @@ function GenericContentSidekickAreaManager(
                   pluginApi,
                   intl,
                   modalUiScale,
+                  reelAnimationEnabled,
                 }}
               />,
             );
@@ -91,7 +94,7 @@ function GenericContentSidekickAreaManager(
     // returned by useCurrentUser, the settings object literal) the effect would re-run
     // forever and the client's layout engine would report "Maximum update depth
     // exceeded". `intl` is memoized in commons/hooks; the rest are primitives.
-  }, [pluginApi, intl, sidekickAreaName, modalUiScale, isPresenter]);
+  }, [pluginApi, intl, sidekickAreaName, modalUiScale, reelAnimationEnabled, isPresenter]);
 
   return null;
 }

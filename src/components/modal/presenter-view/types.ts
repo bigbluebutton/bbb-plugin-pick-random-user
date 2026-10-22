@@ -16,4 +16,6 @@ export interface PresenterViewComponentProps {
     setFilterOptions: React.Dispatch<React.SetStateAction<FilterOptionsType>>;
     usersToBePicked: UsersBasicInfoData[];
     isLoading: boolean;
+    // Whether a pick spins on the presenter's reel before it shows (see useNewestPickSpinning).
+    reelAnimated: boolean;
 }

@@ -33,6 +33,8 @@ describe('useGetAllSettings', () => {
       pickedUserTimeWindow: PICKED_USER_TIME_WINDOW,
       preventCloseDelaySeconds: DEFAULT_PREVENT_CLOSE_DELAY_SECONDS,
       modalUiScale: DEFAULT_MODAL_UI_SCALE,
+      reelEnabled: true,
+      reelAnimationEnabled: true,
     });
   });
 
@@ -44,6 +46,8 @@ describe('useGetAllSettings', () => {
       pickedUserTimeWindow: 20,
       preventCloseDelaySeconds: 5,
       modalUiScale: 1.5,
+      reelEnabled: false,
+      reelAnimationEnabled: false,
     };
 
     const { result } = renderHook(() => useGetAllSettings(wrapper(settings, false)));
@@ -55,6 +59,8 @@ describe('useGetAllSettings', () => {
       pickedUserTimeWindow: 20,
       preventCloseDelaySeconds: 5,
       modalUiScale: 1.5,
+      reelEnabled: false,
+      reelAnimationEnabled: false,
     });
   });
 

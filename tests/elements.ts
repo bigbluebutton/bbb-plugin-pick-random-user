@@ -14,7 +14,7 @@ export const elements = {
   pickRandomUserPanel: 'div[data-test="pickRandomUserPanel"]',
 
   // Modal close button
-  pickRandomUserModalCloseButton: '[data-test="pickRandomUserModalCloseButton"]',
+  pickRandomUserModalCloseButton: '[data-test="pickRandomUserModal-close-button"]',
 
   // Presenter view – filter chips (label elements, for click and visibility checks)
   includeModeratorsChip: '[data-test="includeModeratorsChip"]',
@@ -22,9 +22,9 @@ export const elements = {
   includePickedUsersChip: '[data-test="includePickedUsersChip"]',
 
   // Presenter view – filter checkboxes (hidden inputs, for isChecked / not.toBeChecked only)
-  includeModeratorsCheckbox: '#includeModerators',
-  includePresenterCheckbox: '#includePresenter',
-  includePickedUsersCheckbox: '#includePickedUsers',
+  includeModeratorsCheckbox: '[data-test="includeModeratorsCheckbox"]',
+  includePresenterCheckbox: '[data-test="includePresenterCheckbox"]',
+  includePickedUsersCheckbox: '[data-test="includePickedUsersCheckbox"]',
 
   // Presenter view – available users section
   pickRandomUserAvailableContent: '[data-test="pickRandomUserAvailableContent"]',
@@ -37,10 +37,13 @@ export const elements = {
   pickRandomUserClearAllButton: '[data-test="pickRandomUserClearAllButton"]',
   pickRandomUserPreviouslyPickedList: '[data-test="pickRandomUserPreviouslyPickedList"]',
 
-  // Picked-user view
-  pickRandomUserPickedUserViewTitle: '[data-test="pickRandomUserPickedUserViewTitle"]',
+  // Picked-user view. The modal itself (react-modal's `testId` becomes `data-testid`), which
+  // is there exactly while the modal is open. BBBModal gives its title no data-test, so the
+  // title is checked through the modal's accessible name, which the plugin sets to it.
+  pickRandomUserModal: '[data-testid="pickRandomUserModal"]',
   pickRandomUserPickedUserName: '[data-test="pickRandomUserPickedUserName"]',
-  pickRandomUserBackButton: '[data-test="pickRandomUserBackButton"]',
+  pickRandomUserCloseButton: '[data-test="pickRandomUserCloseButton"]',
+  pickRandomUserPickAgainButton: '[data-test="pickRandomUserPickAgainButton"]',
   pickRandomUserCountDownMessage: 'div[data-test="countDownMessage"]',
 
   // Modal overlay (ReactModal renders this as a full-screen backdrop)

@@ -11,8 +11,6 @@ import {
 } from 'bigbluebutton-html-plugin-sdk';
 import { PickedUserSeenEntryDataChannel, PickedUserWithEntryId } from '../pick-random-user/types';
 import { PickRandomUserSettings } from '../../commons/types';
-import { notifyRandomlyPickedUser, pingSoundForRandomlyPickedUser } from './utils';
-import { usePreviousValue } from '../../commons/hooks';
 import { hasCurrentUserSeenPickedUser } from '../../commons/utils';
 import {
   FilterOptionsType,
@@ -21,83 +19,34 @@ import {
 const UPDATE_COUNTDOWN_RATE = 100; // milliseconds
 const COUNTDOWN_RATE_IN_SECONDS = UPDATE_COUNTDOWN_RATE / 1000;
 
-const useCurrentUserId = (currentUser: CurrentUserData) => {
-  const [currentUserId, setCurrentUserId] = useState(currentUser?.userId || '');
-
-  useEffect(() => {
-    if (currentUserId === '') {
-      setCurrentUserId(currentUser.userId);
-    }
-  }, [currentUser]);
-
-  return currentUserId;
-};
-
-export const useObserveForNotification = (
-  notifyAndPingCallback: () => void,
+/**
+ * Records that the current user has seen the pick on screen, so the modal does not open
+ * for them again for that pick. Shared by the reel and the classic picked-user views.
+ * @param pickedUserWithEntryId the pick on screen
+ * @param currentUser user this plugin instance runs for
+ * @param pickedUserSeenEntries the "seen" data channel entries
+ * @param pushPickedUserSeen pushes a "seen" entry
+ */
+export const useMarkPickedUserSeen = (
+  pickedUserWithEntryId: PickedUserWithEntryId | null,
   currentUser: CurrentUserData,
   pickedUserSeenEntries: GraphqlResponseWrapper<
     DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
-  currentPickedUser: PickedUserWithEntryId | null,
+  pushPickedUserSeen: PushEntryFunction<PickedUserSeenEntryDataChannel>,
 ) => {
-  const currentUserId = useCurrentUserId(currentUser);
-
-  const [shouldNotify, setShouldNotify] = useState(false);
-
-  const previousPickedUserEntryId = usePreviousValue(currentPickedUser?.entryId);
-
-  const currentPickedUserId = currentPickedUser?.pickedUser?.userId;
-
-  useEffect(() => {
-    if (currentPickedUser
-      && currentPickedUserId === currentUserId
-      && previousPickedUserEntryId !== currentPickedUser.entryId
-    ) {
-      setShouldNotify(true);
-    }
-  }, [currentUserId, currentPickedUser]);
-
   useEffect(() => {
     const hasCurrentUserSeen = hasCurrentUserSeenPickedUser(
       pickedUserSeenEntries,
-      currentUserId,
-      currentPickedUser?.pickedUser.userId,
+      currentUser?.userId,
+      pickedUserWithEntryId?.pickedUser?.userId,
     );
-    const notifyUser = !pickedUserSeenEntries?.loading && !hasCurrentUserSeen && shouldNotify;
-    if (notifyUser) {
-      notifyAndPingCallback();
+    if (pickedUserWithEntryId && !hasCurrentUserSeen) {
+      pushPickedUserSeen({
+        pickedUserId: pickedUserWithEntryId?.pickedUser.userId,
+        seenByUserId: currentUser.userId,
+      });
     }
-    setShouldNotify(false);
-  }, [
-    shouldNotify,
-  ]);
-};
-
-export const useHandleCurrentUserNotification = (
-  currentUser: CurrentUserData,
-  pickedUserSeenEntries: GraphqlResponseWrapper<
-    DataChannelEntryResponseType<PickedUserSeenEntryDataChannel>[]>,
-  currentPickedUser: PickedUserWithEntryId | null,
-  pickRandomUserSettings: PickRandomUserSettings,
-  notificationMessage: string,
-) => {
-  const { pingSoundEnabled, pingSoundUrl, browserNotificationEnabled } = pickRandomUserSettings;
-
-  function notifyAndPing() {
-    if (pingSoundEnabled) pingSoundForRandomlyPickedUser(pingSoundUrl);
-    if (browserNotificationEnabled) {
-      notifyRandomlyPickedUser(
-        notificationMessage,
-      );
-    }
-  }
-
-  useObserveForNotification(
-    notifyAndPing,
-    currentUser,
-    pickedUserSeenEntries,
-    currentPickedUser,
-  );
+  }, [pickedUserWithEntryId]);
 };
 
 export const usePreventCloseModalCountdown = (
@@ -167,6 +116,12 @@ export const usePreventCloseModalCountdown = (
 };
 
 // Filter Options hooks and utilities
+const DEFAULT_FILTER_OPTIONS: FilterOptionsType = {
+  includeModerators: false,
+  includePresenter: false,
+  includePickedUsers: false,
+};
+
 const useUpdateFilterOptionsOnDataChannel = (
   pushFilterOptionsToDataChannel: PushEntryFunction<FilterOptionsType>,
   filterOptions: FilterOptionsType,
@@ -224,11 +179,7 @@ export const useGetFilterOptions = (
   pluginApi: PluginApi,
   currentUserPresenter: boolean,
 ): [FilterOptionsType, React.Dispatch<React.SetStateAction<FilterOptionsType>>] => {
-  const [filterOptions, setFilterOptions] = useState<FilterOptionsType>({
-    includeModerators: false,
-    includePresenter: false,
-    includePickedUsers: false,
-  });
+  const [filterOptions, setFilterOptions] = useState<FilterOptionsType>(DEFAULT_FILTER_OPTIONS);
   const [hasDataChannelBeenApplied, setHasDataChannelBeenApplied] = useState(false);
   const {
     data: filterOptionsFromDataChannel,
@@ -252,4 +203,19 @@ export const useGetFilterOptions = (
     hasDataChannelBeenApplied,
   );
   return [filterOptions, setFilterOptions];
+};
+
+/**
+ * Read-only view of the filter options the presenter set in the panel, for picking again
+ * from somewhere other than the panel. Unlike `useGetFilterOptions` it never writes back to
+ * the data channel, so it cannot race the panel over the latest entry.
+ * @param pluginApi plugin API of the current plugin instance
+ * @returns the latest filter options, or the defaults while none were published
+ */
+export const useFilterOptionsFromDataChannel = (pluginApi: PluginApi): FilterOptionsType => {
+  const {
+    data: filterOptionsFromDataChannel,
+  } = pluginApi.useDataChannel<FilterOptionsType>('filterOptions', DataChannelTypes.LATEST_ITEM);
+  return getLatestFilterOptionsFromDataChannel(filterOptionsFromDataChannel)
+    ?? DEFAULT_FILTER_OPTIONS;
 };

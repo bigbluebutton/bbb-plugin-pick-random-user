@@ -38,7 +38,7 @@ async function enableAllFilters(modPage: ModPage): Promise<void> {
 async function pickUser(modPage: ModPage): Promise<void> {
   await modPage.page.click(e.pickRandomUserPickButton);
   await modPage.hasElement(
-    e.pickRandomUserPickedUserViewTitle,
+    e.pickRandomUserModal,
     'picked-user modal should open after clicking pick',
     ELEMENT_WAIT_LONGER_TIME,
   );
@@ -130,6 +130,24 @@ test.describe('Pick Random User Plugin - Behavioural (single user)', () => {
     await pickedList.first().waitFor({ state: 'visible', timeout: ELEMENT_WAIT_TIME });
     const count = await pickedList.count();
     test.expect(count, 'previously-picked list should have at least one entry after picking').toBeGreaterThanOrEqual(1);
+  });
+
+  test('should pick again from the picked-user modal without going back to the panel', async (): Promise<void> => {
+    // includePickedUsers keeps the only user eligible, so picking again is possible.
+    await openPickRandomUserPanel(modPage);
+    await enableAllFilters(modPage);
+    await pickUser(modPage);
+
+    await modPage.hasElement(e.pickRandomUserPickAgainButton, 'presenter should see the pick again button', ELEMENT_WAIT_LONGER_TIME);
+    await modPage.page.click(e.pickRandomUserPickAgainButton);
+    // The same user is picked again, so the modal looks the same: the history tells.
+    await closePickedUserModal(modPage);
+    await test.expect
+      .poll(
+        async () => modPage.page.locator(`${e.pickRandomUserPreviouslyPickedList} li`).count(),
+        { timeout: ELEMENT_WAIT_LONGER_TIME, message: 'previously-picked list should hold both picks' },
+      )
+      .toBe(2);
   });
 
   test('should empty the "Previously picked" list when "Clear All" is clicked', async (): Promise<void> => {
