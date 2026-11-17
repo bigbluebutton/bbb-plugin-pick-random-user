@@ -31,6 +31,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
+
       - name: Install dependencies
         if: steps.check-secrets.outputs.configured == 'true'
         run: npm ci
