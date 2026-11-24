@@ -185,6 +185,14 @@ pluginManifests=[{"url":"<your-domain>/path/to/manifest.json"}]
 
 Or additionally, you can add this same configuration in `bbb-web`'s properties in `/etc/bigbluebutton/bbb-web.properties`.
 
+### Alternative build: shared React and SDK (externals)
+
+```bash
+npm run build-bundle:external
+```
+
+Generates `dist-external/` with the same files as `dist/`, but React, ReactDOM and the plugin SDK are not bundled: the plugin uses the copies the BigBlueButton client exposes on `window` (`React`, `ReactDOM`, `ReactDOMClient`, `BbbPluginSdk`). It only works on a client that exposes those globals; on any other client, use the default build.
+
 
 ## Development mode
 
