@@ -185,6 +185,18 @@ pluginManifests=[{"url":"<your-domain>/path/to/manifest.json"}]
 
 Or additionally, you can add this same configuration in `bbb-web`'s properties in `/etc/bigbluebutton/bbb-web.properties`.
 
+### Alternative build: shared React and SDK (externals)
+
+```bash
+npm run build-bundle:external
+```
+
+Generates `dist-external/`. `BbbPluginPickRandomUser.js` does not contain React, ReactDOM, the plugin SDK, react-intl, styled-components or MUI (`@mui/material`). When it loads, it checks whether the BigBlueButton client exposes all of them on `window` (`React`, `ReactDOM`, `ReactDOMClient`, `BbbPluginSdk`, `ReactIntl`, `StyledComponents`, `MaterialUI`), with the same major versions the plugin was built with for React, styled-components and MUI (react-intl does not export its version):
+
+- if it does, the plugin uses the client's copies, and loading it takes a single request;
+- if it does not (an older client, or a different React major), the plugin first loads its own copies from `BbbPluginPickRandomUser.vendor.js`, next to it, and then runs.
+
+The decision is made for all these libraries together: the plugin never mixes the client's copies with its own. Host the whole `dist-external/` folder, including the vendor file.
 
 ## Development mode
 
