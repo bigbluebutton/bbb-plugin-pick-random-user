@@ -191,8 +191,12 @@ Or additionally, you can add this same configuration in `bbb-web`'s properties i
 npm run build-bundle:external
 ```
 
-Generates `dist-external/` with the same files as `dist/`, but React, ReactDOM and the plugin SDK are not bundled: the plugin uses the copies the BigBlueButton client exposes on `window` (`React`, `ReactDOM`, `ReactDOMClient`, `BbbPluginSdk`). It only works on a client that exposes those globals; on any other client, use the default build.
+Generates `dist-external/`. `BbbPluginPickRandomUser.js` does not contain React, ReactDOM or the plugin SDK. When it loads, it checks whether the BigBlueButton client exposes all of them on `window` (`React`, `ReactDOM`, `ReactDOMClient`, `BbbPluginSdk`) with the React major version the plugin was built with:
 
+- if it does, the plugin uses the client's copies, and loading it takes a single request;
+- if it does not (an older client, or a different React major), the plugin first loads its own copies from `BbbPluginPickRandomUser.vendor.js`, next to it, and then runs.
+
+The decision is made for the four packages together: the plugin never mixes the client's copies with its own. Host the whole `dist-external/` folder, including the vendor file.
 
 ## Development mode
 

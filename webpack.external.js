@@ -1,27 +1,60 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-// Alternative build: React, ReactDOM and the plugin SDK are not bundled. The
-// plugin uses the copies the BigBlueButton client exposes on `window`, which
-// requires a client that exposes them (ReactDOM, ReactDOMClient, BbbPluginSdk).
+/* eslint-disable import/extensions */
+// Alternative build: React, ReactDOM and the plugin SDK are not in the plugin's
+// bundle. At load time the plugin uses the copies the BigBlueButton client
+// exposes on `window` (React, ReactDOM, ReactDOMClient, BbbPluginSdk) when all
+// of them exist and React has the major version the plugin was built with.
+// Otherwise it loads its own copies from the vendor file built next to it, and
+// only then runs (src/external/).
 const path = require('path');
+const webpack = require('webpack');
+const reactVersion = require('react/package.json').version;
 const baseConfig = require('./webpack.config');
+const manifest = require('./manifest');
 
-const fromWindow = (globalName, moduleName) => ({
-  root: globalName,
-  commonjs: moduleName,
-  commonjs2: moduleName,
-  amd: moduleName,
-});
+const outputPath = path.resolve(__dirname, 'dist-external');
+const vendorFile = `${manifest.name}.vendor.js`;
+const vendorGlobal = `__${manifest.name}Vendor`;
+const sharedDependenciesGlobal = `__${manifest.name}SharedDependencies`;
+// SHARED_REACT_MAJOR overrides the expected major (only to test the fallback).
+const sharedReactMajor = process.env.SHARED_REACT_MAJOR || reactVersion.split('.')[0];
 
-module.exports = {
+const fromSharedDependencies = (name) => `var ${sharedDependenciesGlobal}.${name}`;
+
+const pluginConfig = {
   ...baseConfig,
+  entry: './src/external/index.ts',
   output: {
-    ...baseConfig.output,
-    path: path.resolve(__dirname, 'dist-external'),
+    filename: baseConfig.output.filename,
+    path: outputPath,
+    publicPath: 'auto',
   },
   externals: {
-    react: fromWindow('React', 'react'),
-    'react-dom': fromWindow('ReactDOM', 'react-dom'),
-    'react-dom/client': fromWindow('ReactDOMClient', 'react-dom/client'),
-    'bigbluebutton-html-plugin-sdk': fromWindow('BbbPluginSdk', 'bigbluebutton-html-plugin-sdk'),
+    react: fromSharedDependencies('React'),
+    'react-dom': fromSharedDependencies('ReactDOM'),
+    'react-dom/client': fromSharedDependencies('ReactDOMClient'),
+    'bigbluebutton-html-plugin-sdk': fromSharedDependencies('BbbPluginSdk'),
   },
+  plugins: [
+    ...baseConfig.plugins,
+    new webpack.DefinePlugin({
+      SHARED_REACT_MAJOR: JSON.stringify(sharedReactMajor),
+      SHARED_DEPENDENCIES_GLOBAL: JSON.stringify(sharedDependenciesGlobal),
+      VENDOR_FILE: JSON.stringify(vendorFile),
+      VENDOR_GLOBAL: JSON.stringify(vendorGlobal),
+    }),
+  ],
 };
+
+const vendorConfig = {
+  entry: './src/external/vendor.ts',
+  output: {
+    filename: vendorFile,
+    path: outputPath,
+    library: { name: vendorGlobal, type: 'window' },
+  },
+  module: baseConfig.module,
+  resolve: baseConfig.resolve,
+};
+
+module.exports = [pluginConfig, vendorConfig];
